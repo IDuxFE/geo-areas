@@ -10,7 +10,8 @@
     "test:types": "tsc -p test/tsconfig.json",
     "prepack": "pnpm check",
     "update:data": "node scripts/update.mjs",
-    "audit:data": "node scripts/audit.mjs"
+    "audit:data": "node scripts/audit.mjs",
+    "test:coverage": "node scripts/prepare-coverage.mjs && c8 --all --include=\"src/*.ts\" --include=\"dist/*.js\" --exclude=\"src/types.ts\" --exclude=\"**/*.d.ts\" --exclude=\"dist/types.js\" --exclude=\"scripts/prepare-coverage.mjs\" --include=\"scripts/*.mjs\" --reporter=text --reporter=lcov --reporter=json-summary node --test test/*.test.mjs"
   },
   "keywords": [
     "geojson",
@@ -45,7 +46,10 @@
     "licenses",
     "CHINA_MAP_COVERAGE.md",
     "API.md",
-    "audit"
+    "audit",
+    "README.zh.md",
+    "CHANGELOG.md",
+    "API.zh.md"
   ],
   "engines": {
     "node": ">=22"
@@ -98,5 +102,14 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IDuxFE/geo-areas.git",
+    "directory": "packages/geo-areas"
+  },
+  "homepage": "https://iduxfe.github.io/geo-areas/",
+  "bugs": {
+    "url": "https://github.com/IDuxFE/geo-areas/issues"
   }
 }

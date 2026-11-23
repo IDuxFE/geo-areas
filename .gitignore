@@ -4,3 +4,4 @@ dist/
 .cache/
 .update-*/
 .DS_Store
+coverage/

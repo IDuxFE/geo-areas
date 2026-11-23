@@ -12,7 +12,7 @@
     "@idux/geo-areas": "workspace:*",
     "cldr-core": "^49.0.0",
     "echarts": "^6.1.0",
-    "vue": "^3.5.0"
+    "vue": "^3.5.46"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6",

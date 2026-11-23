@@ -1,37 +1,56 @@
 # Geo Areas
 
-- [@idux/geo-areas](packages/geo-areas/README.md) 提供双语行政区划、国际区号及 GeoJSON。
-- [API 文档](API.md) 定义全部公开接口、参数、返回值和数据字段。
-- [Playground](packages/playground/) 使用 Vue 3 和 iDux 组件演示数据包，支持地图下钻。
+[English](README.md) | [简体中文](README.zh.md)
+
+[![CI](https://github.com/IDuxFE/geo-areas/actions/workflows/ci.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/IDuxFE/geo-areas/branch/main/graph/badge.svg)](https://codecov.io/gh/IDuxFE/geo-areas)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+Geographic data for TypeScript: countries and regions, calling codes, administrative divisions, and ECharts-ready GeoJSON, with automated data updates and an interactive map playground.
+
+- [@idux/geo-areas](packages/geo-areas/README.md): the ESM data package with TypeScript declarations and lazily loaded maps.
+- [API reference](API.md): public interfaces, parameters, return values and data fields.
+- [Playground](https://iduxfe.github.io/geo-areas/): an interactive Vue 3 / iDux demo with map drill-down ([source](packages/playground/)). The site deploys after a successful CI run on `main`.
+
+## Development
+
+Requires Node.js 22+ and pnpm 11.8.0. This package is under development and has not been published to npm. Use the workspace to try it locally.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm playground
 pnpm playground:build
 pnpm check
+pnpm test:coverage
 ```
 
-运行 `pnpm update:data` 刷新数据。Playground 构建产物位于 `packages/playground/dist`。
+Run `pnpm update:data` to refresh data from public upstream sources. Playground output is written to `packages/playground/dist`.
 
-## 打包与发布
+`pnpm lint` runs Oxlint; `pnpm format` formats files with Oxfmt; `pnpm format:check` checks formatting. Husky and lint-staged check staged files before commits. Generated data, source manifests and third-party license snapshots retain their original formatting.
 
-根工作区与 Playground 均为私有包，仅发布 `packages/geo-areas` 中的 `@idux/geo-areas`。在仓库根目录运行：
+## Packaging and release notes
+
+The workspace root and playground are private packages. Only `packages/geo-areas` is publishable.
 
 ```sh
+pnpm changeset              # record a package change for a future release
 pnpm check
 pnpm --dir packages/geo-areas pack
 ```
 
-发布包生成在 `packages/geo-areas/`，包含构建产物、数据包 README、许可证及数据来源说明。`prepack` 会自动执行构建、测试和消费者类型检查。
+The archive includes runtime data, documentation, licenses and source notices. `prepack` runs the build, tests and consumer type checks. CI also builds the playground and uploads a package preview without publishing it.
 
-版本号只维护在 `packages/geo-areas/package.json`。修改版本并提交后，推送匹配的 `v<version>` 标签触发发布；CI 与发布工作流使用同一打包脚本，生成 `packages/geo-areas/release.tgz`。npm Trusted Publisher 配置及手动发布方式见[数据包发布说明](packages/geo-areas/README.md#发布)。
+Changesets accumulate until a maintainer runs `pnpm version:packages` on a release branch. This updates `packages/geo-areas/package.json` and its [changelog](packages/geo-areas/CHANGELOG.md); it does not publish. npm publishing is disabled. See [maintainer setup](.github/MAINTAINERS.md) before enabling a release.
 
-## 代码检查
+## Data and licenses
 
-- `pnpm lint` 使用 Oxlint 检查源码。
-- `pnpm format` 使用 Oxfmt 格式化，`pnpm format:check` 检查格式。
-- 安装依赖时 Husky 会启用提交钩子，提交前由 lint-staged 检查并格式化暂存文件。生成的数据、来源清单和第三方许可证保持原样。
+Project code is MIT licensed. Third-party data has separate terms; see [source notices](packages/geo-areas/THIRD_PARTY_NOTICES.md), including the outstanding redistribution checks. Automated dependency scans do not establish permission to redistribute map datasets.
 
-项目代码采用 MIT 许可证。数据来源及第三方条款见 [数据包说明](packages/geo-areas/THIRD_PARTY_NOTICES.md)。
+The world overview uses Apache ECharts example data. China province maps can use DataV `100000` or ECharts 3.8.5 `china` (alias `CN-provinces`). Coverage and drill-down codes are documented in the [package README](packages/geo-areas/README.md).
 
-全球总览 `world` 使用 Apache ECharts 示例地图。中国省级地图可选择 DataV 的 `100000` 或 ECharts 3.8.5 的 `china`（`CN-provinces` 别名）。两版覆盖范围和下钻编码见[数据包 README](packages/geo-areas/README.md)。
+## Contributing
+
+Fork this repository, create a branch and open a pull request against `IDuxFE/geo-areas:main`. Direct changes to `main` are blocked; changes require passing CI and resolved review discussions. Maintainers merge using rebase.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for checks and Changesets, and [SECURITY.md](SECURITY.md) for vulnerability reporting.

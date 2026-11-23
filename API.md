@@ -1,3 +1,5 @@
-# API 文档
+# API reference
 
-完整接口文档位于 [@idux/geo-areas API](packages/geo-areas/API.md)，随 npm 包一同发布。
+[English](packages/geo-areas/API.md) | [简体中文](packages/geo-areas/API.zh.md)
+
+The complete reference ships with the data package.

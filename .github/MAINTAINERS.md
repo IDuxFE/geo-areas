@@ -3,7 +3,7 @@
 ## Repository policy
 
 - Upstream: `IDuxFE/geo-areas`; personal forks use `origin`, upstream uses `upstream` locally.
-- `main` is protected by an active ruleset with no bypass actors: pull requests, successful `CI required`, an up-to-date branch, resolved review conversations and linear history are required; deletion and force pushes are blocked.
+- `main` is protected by an active ruleset with no bypass actors: pull requests, successful `CI required` and `CodeQL analysis`, an up-to-date branch, resolved review conversations and linear history are required; deletion and force pushes are blocked.
 - Only rebase merge is enabled. Auto-merge is disabled. Maintainers merge manually. No independent approval count is required during initial development so a maintainer can merge their own passing PR; review discussions still must be resolved.
 - Ordinary organization members have read access and contribute through forks. Organization owners retain administrative access; a repository ruleset cannot remove their ability to administer organization settings.
 - Actions uses read-only default permissions. Workflows request write permissions only for specific jobs. Fork PR checks use `pull_request`, never execute PR code through `pull_request_target`, and have no publishing credentials.

@@ -1,0 +1,52 @@
+name: Update public-source datasets
+on:
+  schedule:
+    - cron: '23 2 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: update-public-data
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Refresh upstream maintained package data
+        run: pnpm --filter @idux/geo-areas update --latest @vant/area-data i18n-iso-countries libphonenumber-js pinyin-pro cldr-core cldr-localenames-full
+      - run: pnpm update:data
+      - run: pnpm check
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/update-public-data
+          commit-message: 'chore: refresh public geographic datasets'
+          title: 'chore: refresh public geographic datasets'
+          body: |
+            Regenerated from upstream public sources without manual data editing.
+
+            Review data-manifest.json for source hashes, upstream versions and coverage gaps.
+            Validation: pnpm update:data; pnpm check.
+          add-paths: |
+            packages/geo-areas/src/generated
+            packages/geo-areas/src/data
+            packages/geo-areas/data-manifest.json
+            packages/geo-areas/CHINA_MAP_COVERAGE.md
+            packages/geo-areas/package.json
+            pnpm-lock.yaml
+            packages/geo-areas/licenses
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-data-update-report
+          path: packages/geo-areas/.cache/update-report.json
+          if-no-files-found: warn
+          retention-days: 30

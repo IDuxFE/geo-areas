@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": true,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "packages/geo-areas/src/generated/**",
+    "packages/geo-areas/src/data/**",
+    "packages/geo-areas/data-manifest.json",
+    "packages/geo-areas/licenses/**",
+    "**/dist/**",
+    "**/.cache/**",
+    "pnpm-lock.yaml",
+    ".vscode/**"
+  ]
+}

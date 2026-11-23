@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "packages/geo-areas/src/generated/**",
+    "packages/geo-areas/src/data/**",
+    "packages/geo-areas/data-manifest.json",
+    "packages/geo-areas/licenses/**",
+    "**/dist/**",
+    "**/.cache/**"
+  ]
+}

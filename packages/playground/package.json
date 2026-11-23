@@ -1,0 +1,23 @@
+{
+  "name": "@idux/geo-areas-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build-map-index.mjs && vite",
+    "build": "node scripts/build-map-index.mjs && vue-tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@idux/cdk": "^2.11.0",
+    "@idux/components": "^2.11.0",
+    "@idux/geo-areas": "workspace:*",
+    "cldr-core": "^49.0.0",
+    "echarts": "^6.1.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6",
+    "typescript": "~5.9.3",
+    "vite": "^7",
+    "vue-tsc": "^3"
+  }
+}

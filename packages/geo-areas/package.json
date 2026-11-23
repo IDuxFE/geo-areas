@@ -1,0 +1,102 @@
+{
+  "name": "@idux/geo-areas",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "check": "pnpm build && pnpm test && pnpm test:types",
+    "test:types": "tsc -p test/tsconfig.json",
+    "prepack": "pnpm check",
+    "update:data": "node scripts/update.mjs",
+    "audit:data": "node scripts/audit.mjs"
+  },
+  "keywords": [
+    "geojson",
+    "echarts",
+    "china",
+    "countries",
+    "calling-codes",
+    "administrative-divisions"
+  ],
+  "license": "MIT",
+  "description": "Bilingual countries, calling codes, Chinese administrative divisions and ECharts-ready GeoJSON",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@vant/area-data": "^2.2.0",
+    "cldr-core": "^49.0.0",
+    "cldr-localenames-full": "^49.0.0",
+    "echarts": "^6.1.0",
+    "esbuild": "^0.28.2",
+    "i18n-iso-countries": "^7.12.0",
+    "libphonenumber-js": "^1.13.15",
+    "pinyin-pro": "^3.29.5",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "licenses",
+    "CHINA_MAP_COVERAGE.md",
+    "API.md",
+    "audit"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./countries": {
+      "types": "./dist/countries.d.ts",
+      "import": "./dist/countries.js"
+    },
+    "./phone": {
+      "types": "./dist/phone.d.ts",
+      "import": "./dist/phone.js"
+    },
+    "./china": {
+      "types": "./dist/china.d.ts",
+      "import": "./dist/china.js"
+    },
+    "./subdivisions": {
+      "types": "./dist/subdivisions.d.ts",
+      "import": "./dist/subdivisions.js"
+    },
+    "./geojson": {
+      "types": "./dist/geojson.d.ts",
+      "import": "./dist/geojson.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./manifest": {
+      "types": "./dist/data-manifest.d.ts",
+      "default": "./dist/data-manifest.json"
+    },
+    "./geojson/china.json": {
+      "types": "./dist/data/map.d.ts",
+      "default": "./dist/data/maps/CN-provinces.json"
+    },
+    "./geojson/*.json": {
+      "types": "./dist/data/map.d.ts",
+      "default": "./dist/data/maps/*.json"
+    }
+  },
+  "dependencies": {
+    "@types/geojson": "^7946.0.16"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

@@ -1,0 +1,30 @@
+name: Publish npm package
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+  id-token: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    defaults:
+      run:
+        working-directory: packages/geo-areas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        working-directory: .
+      - name: Check tag matches package version
+        run: node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if (`v${p.version}` !== process.env.GITHUB_REF_NAME) throw new Error("Tag/version mismatch")'
+      - run: pnpm check
+      - name: Pack with the actual repository URL for provenance
+        run: node scripts/pack-for-ci.mjs
+      - run: pnpm publish release.tgz --ignore-scripts --access public --provenance

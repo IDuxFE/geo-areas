@@ -1,0 +1,19 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: 90%
+        only_pulls: true
+comment:
+  layout: 'diff, flags, files'
+  require_changes: true
+ignore:
+  - '**/src/data/**'
+  - '**/src/generated/**'
+  - '**/test/**'
+  - '**/dist/**'
+  - '**/scripts/prepare-coverage.mjs'

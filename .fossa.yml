@@ -1,0 +1,9 @@
+version: 3
+telemetry:
+  scope: 'off'
+paths:
+  exclude:
+    - node_modules
+    - packages/geo-areas/dist
+    - packages/playground/dist
+    - packages/geo-areas/.cache

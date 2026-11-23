@@ -11,12 +11,13 @@ concurrency:
   cancel-in-progress: false
 jobs:
   update:
+    if: github.repository == 'IDuxFE/geo-areas'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: pnpm
@@ -25,7 +26,13 @@ jobs:
         run: pnpm --filter @idux/geo-areas update --latest @vant/area-data i18n-iso-countries libphonenumber-js pinyin-pro cldr-core cldr-localenames-full
       - run: pnpm update:data
       - run: pnpm check
-      - uses: peter-evans/create-pull-request@v7
+      - name: Record a patch release note when data changes
+        run: |
+          if ! git diff --quiet -- packages/geo-areas; then
+            mkdir -p .changeset
+            printf '%s\n' '---' '"@idux/geo-areas": patch' '---' '' 'Refresh geographic datasets from public upstream sources.' > .changeset/public-data-update.md
+          fi
+      - uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7
         with:
           branch: chore/update-public-data
           commit-message: 'chore: refresh public geographic datasets'
@@ -36,6 +43,7 @@ jobs:
             Review data-manifest.json for source hashes, upstream versions and coverage gaps.
             Validation: pnpm update:data; pnpm check.
           add-paths: |
+            .changeset/public-data-update.md
             packages/geo-areas/src/generated
             packages/geo-areas/src/data
             packages/geo-areas/data-manifest.json
@@ -43,7 +51,7 @@ jobs:
             packages/geo-areas/package.json
             pnpm-lock.yaml
             packages/geo-areas/licenses
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: public-data-update-report

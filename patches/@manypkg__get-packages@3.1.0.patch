@@ -1,0 +1,20 @@
+--- a/dist/manypkg-get-packages.js
++++ b/dist/manypkg-get-packages.js
+@@ -28,7 +28,7 @@
+   if (!tool) throw new Error(`Could not find ${monorepoRoot.tool} tool`);
+   const packages = await tool.getPackages(monorepoRoot.rootDir);
+   validatePackages(packages);
+-  return packages;
++  return { ...packages, root: packages.rootPackage ?? packages.packages.find(pkg => pkg.dir === packages.rootDir) };
+ }
+ 
+ /**
+@@ -41,7 +41,7 @@
+   if (!tool) throw new Error(`Could not find ${monorepoRoot.tool} tool`);
+   const packages = tool.getPackagesSync(monorepoRoot.rootDir);
+   validatePackages(packages);
+-  return packages;
++  return { ...packages, root: packages.rootPackage ?? packages.packages.find(pkg => pkg.dir === packages.rootDir) };
+ }
+ function validatePackages(packages) {
+   const pkgJsonsMissingNameField = [];

@@ -10,7 +10,6 @@ overrides:
   glob@>=14.0.2>minimatch: ^11.0.1
   # c8/test-exclude have not adopted the fixed glob/minimatch or current find-up APIs.
   c8>find-up: ^8.0.0
-  '@manypkg/find-root>find-up': ^8.0.0
   p-locate>p-limit: ^7.3.3
   postcss>nanoid: ^6.0.2
   istanbul-lib-report>supports-color: ^11.0.0
@@ -19,7 +18,37 @@ overrides:
   '@atlaskit/pragmatic-drag-and-drop-auto-scroll': ^2.1.5
   '@atlaskit/pragmatic-drag-and-drop-hitbox': ^2.0.0
 
+  # Keep Node 20-compatible Changesets 2 and Archive on maintained parsing/tooling dependencies.
+  # Exact versions below keep their compatibility patches from being bypassed.
+  '@manypkg/get-packages': 3.1.0
+  '@idux/archive-vite-markdown-plugin': 0.5.0
+  shiki-processor: 0.1.3
+  'fs-extra': ^11.4.1
+  'p-filter': ^4.1.0
+  '@changesets/types@<6': ^6.1.0
+  '@idux/archive>chokidar': ^5.0.0
+  'markdown-it': ^15.0.3
+  'linkify-it': ^6.1.0
+  'shiki': ^4.6.0
+  '@idux/archive-vite-markdown-plugin>lru-cache': ^11.5.3
+  '@mdit-vue/plugin-component': ^4.0.0
+  '@mdit-vue/plugin-frontmatter': ^4.0.0
+  '@mdit-vue/plugin-headers': ^4.0.0
+  '@mdit-vue/plugin-sfc': ^4.0.0
+  '@mdit-vue/plugin-title': ^4.0.0
+  '@mdit-vue/plugin-toc': ^4.0.0
+  '@mdit-vue/shared': ^4.0.0
+  '@mdit-vue/types': ^4.0.0
+
+  markdown-it-anchor: ^9.2.0
+  markdown-it-container: ^4.0.0
+  markdown-it-emoji: ^3.0.0
+  markdown-it-attrs: ^4.5.0
+  '@types/markdown-it': ^14.1.2
+
 patchedDependencies:
   c8@12.0.0: patches/c8@12.0.0.patch
   istanbul-lib-report@3.0.1: patches/istanbul-lib-report@3.0.1.patch
-  '@manypkg/find-root@1.1.0': patches/@manypkg__find-root@1.1.0.patch
+  '@idux/archive-vite-markdown-plugin@0.5.0': patches/@idux__archive-vite-markdown-plugin@0.5.0.patch
+  shiki-processor@0.1.3: patches/shiki-processor@0.1.3.patch
+  '@manypkg/get-packages@3.1.0': patches/@manypkg__get-packages@3.1.0.patch

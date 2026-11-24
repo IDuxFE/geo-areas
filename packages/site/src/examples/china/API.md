@@ -10,6 +10,7 @@ title: API
 ### ChinaArea
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface ChinaArea {
   adcode: string
   parentCode: string | null
@@ -49,8 +50,8 @@ export interface AreaOption {
 ### 导出与签名
 
 ```ts
-export const chinaAreas: readonly ChinaArea[]
-export const chinaAreaTree: ChinaArea
+export const chinaAreas: DeepReadonly<ChinaArea[]>
+export const chinaAreaTree: DeepReadonly<ChinaArea>
 
 export function getChinaArea(adcode: string | number): ChinaArea | undefined
 

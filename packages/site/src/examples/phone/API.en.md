@@ -8,6 +8,7 @@ title: API (English)
 Import from `/phone` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface PhoneRegion {
   countryCode: string
   name: LocalizedName
@@ -18,7 +19,7 @@ export interface PhoneRegion {
 `countryCode` is the unique region key: ISO alpha-2 plus libphonenumber extensions `AC`, `TA` and `XK`. `name` holds display names. `callingCode` is an E.164 country calling code with `+`; multiple regions can share it. It is not a city area code or NANP region prefix: Jamaica returns `+1`. Extension regions may be absent from `getCountry`.
 
 ```ts
-export const phoneRegions: readonly PhoneRegion[]
+export const phoneRegions: DeepReadonly<PhoneRegion[]>
 
 export function getPhoneRegion(countryCode: string): PhoneRegion | undefined
 

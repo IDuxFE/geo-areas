@@ -1,10 +1,11 @@
+import { freezeData } from './immutable.js'
 import { chinaData } from './generated/china.js'
 import { countryData } from './generated/countries.js'
 import { getLocale } from './locale.js'
 import type { AreaOption, ChinaArea } from './types.js'
-export const chinaAreas: readonly ChinaArea[] = chinaData
+export const chinaAreas = freezeData(chinaData)
 /** Full country → province → city → district tree. chinaAreas remains province-first. */
-export const chinaAreaTree: ChinaArea = {
+const root: ChinaArea = {
   adcode: '100000',
   parentCode: null,
   level: 'country',
@@ -14,6 +15,7 @@ export const chinaAreaTree: ChinaArea = {
   centroid: null,
   children: chinaData,
 }
+export const chinaAreaTree = freezeData(root)
 const byCode = new Map<string, ChinaArea>()
 function index(areas: readonly ChinaArea[]) {
   for (const area of areas) {
@@ -21,9 +23,9 @@ function index(areas: readonly ChinaArea[]) {
     if (area.children) index(area.children)
   }
 }
-index([chinaAreaTree])
+index([root])
 export function getChinaArea(adcode: string | number): ChinaArea | undefined {
-  return byCode.get(String(adcode))
+  return structuredClone(byCode.get(String(adcode)))
 }
 export function getChinaAreaOptions(depth: 1 | 2 | 3 = 3): AreaOption[] {
   const locale = getLocale()
@@ -37,5 +39,5 @@ export function getChinaAreaOptions(depth: 1 | 2 | 3 = 3): AreaOption[] {
         : {}),
     }))
   }
-  return options(chinaAreas, depth)
+  return options(chinaData, depth)
 }

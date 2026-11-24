@@ -1,5 +1,8 @@
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson'
 
+/** Recursive readonly view of exported reference snapshots. */
+export type DeepReadonly<T> = { readonly [K in keyof T]: DeepReadonly<T[K]> }
+
 export type Locale = 'zh-CN' | 'en'
 /** States, provinces, regions and equivalent admin-1 units normalize to province. */
 export type AdministrativeLevel = 'country' | 'province' | 'city' | 'district'

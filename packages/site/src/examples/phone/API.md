@@ -10,6 +10,7 @@ title: API
 ### PhoneRegion
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface PhoneRegion {
   countryCode: string
   name: LocalizedName
@@ -28,7 +29,7 @@ export interface PhoneRegion {
 ### 导出与签名
 
 ```ts
-export const phoneRegions: readonly PhoneRegion[]
+export const phoneRegions: DeepReadonly<PhoneRegion[]>
 
 export function getPhoneRegion(countryCode: string): PhoneRegion | undefined
 

@@ -39,7 +39,7 @@ test('calling codes are not unique ids or NANP area prefixes', () => {
 test('Vant hierarchy is preserved including municipality virtual city nodes', () => {
   assert.equal(chinaAreas.length, 34)
   assert.equal(chinaAreaTree.level, 'country')
-  assert.equal(getChinaArea('100000'), chinaAreaTree)
+  assert.deepEqual(getChinaArea('100000'), chinaAreaTree)
   assert.equal(getChinaArea('370000').parentCode, '100000')
   assert.equal(getChinaArea('370000').level, 'province')
   assert.equal(getChinaArea('370100').level, 'city')

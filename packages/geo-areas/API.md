@@ -59,7 +59,7 @@ export interface OptionGroup<T> {
 - Required `null` fields indicate unavailable upstream data, not zero coordinates, empty text or a replacement field. Optional fields may be absent; absent children do not establish that administrative children do not exist.
 - Missing single-item queries return `undefined`; collection queries return `[]`; unknown map loads reject.
 - Only explicitly described normalization occurs. Queries do not trim whitespace; China codes and map IDs are not zero-padded.
-- `readonly` arrays are a TypeScript constraint, not a runtime freeze. Queries share entry references; copy before editing.
+- Exported reference snapshots are deeply readonly and frozen at runtime. Query functions return independent editable copies, including nested names, coordinates and children.
 
 ### Shared locale configuration
 
@@ -87,6 +87,7 @@ The main entry and subpath imports share the same default within one package ins
 Import from `/countries` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface Country {
   level: 'country'
   code: string
@@ -99,7 +100,7 @@ export interface Country {
 `level` is always `country`. `code` is the unique uppercase ISO 3166-1 alpha-2 code, `alpha3` its uppercase three-letter code and `numeric` the three-digit ISO numeric string, including leading zeros. `name` contains display names. Entries include territories; the count is not a count of sovereign states.
 
 ```ts
-export const countries: readonly Country[]
+export const countries: DeepReadonly<Country[]>
 
 export function getCountry(code: string): Country | undefined
 
@@ -144,7 +145,7 @@ export interface Subdivision {
   center: Coordinate | null
 }
 
-export const subdivisions: readonly Subdivision[]
+export const subdivisions: DeepReadonly<Subdivision[]>
 
 export function getSubdivisions(countryCode: string): Subdivision[]
 ```
@@ -159,13 +160,14 @@ export function getSubdivisions(countryCode: string): Subdivision[]
 | `chineseName`        | Original Chinese translation or `null`, indicating display fallback                                   |
 | `center`             | Natural Earth representative label point or `null`; neither a capital location nor geometric centroid |
 
-`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns a new array of shared records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.
+`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns independent editable copies of matching records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.
 
 ## Calling codes
 
 Import from `/phone` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface PhoneRegion {
   countryCode: string
   name: LocalizedName
@@ -176,7 +178,7 @@ export interface PhoneRegion {
 `countryCode` is the unique region key: ISO alpha-2 plus libphonenumber extensions `AC`, `TA` and `XK`. `name` holds display names. `callingCode` is an E.164 country calling code with `+`; multiple regions can share it. It is not a city area code or NANP region prefix: Jamaica returns `+1`. Extension regions may be absent from `getCountry`.
 
 ```ts
-export const phoneRegions: readonly PhoneRegion[]
+export const phoneRegions: DeepReadonly<PhoneRegion[]>
 
 export function getPhoneRegion(countryCode: string): PhoneRegion | undefined
 
@@ -214,6 +216,7 @@ Membership follows the bundled CLDR territory-containment snapshot, assigning ea
 Import from `/china` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface ChinaArea {
   adcode: string
   parentCode: string | null
@@ -249,8 +252,8 @@ export interface AreaOption {
 `AreaOption.value` is `adcode`, `label` is the selected name, and `level` matches the node. Recursive options omit coordinates, parent codes and English-name provenance.
 
 ```ts
-export const chinaAreas: readonly ChinaArea[]
-export const chinaAreaTree: ChinaArea
+export const chinaAreas: DeepReadonly<ChinaArea[]>
+export const chinaAreaTree: DeepReadonly<ChinaArea>
 
 export function getChinaArea(adcode: string | number): ChinaArea | undefined
 

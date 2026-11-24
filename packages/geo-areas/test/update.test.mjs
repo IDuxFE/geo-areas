@@ -56,7 +56,7 @@ for (const mode of ['network', 'http', 'json'])
       assert.equal(report.sourceFallbacks.length, 1)
       assert.equal(report.sourceFallbacks[0].status, 'failed')
       assert.match(report.sourceFallbacks[0].to, /100000\.json$/)
-      assert.match(report.error, /geo.datav.aliyun.com/)
+      assert.match(report.error, /geo\.datav\.aliyun\.com/)
       assert.ok(
         report.requestFailures.some(
           (failure) =>

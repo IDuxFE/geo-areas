@@ -1,7 +1,8 @@
 name: Update public-source datasets
 on:
   schedule:
-    - cron: '23 2 * * 1'
+    # Monday 01:00 Asia/Shanghai (Sunday 17:00 UTC).
+    - cron: '0 17 * * 0'
   workflow_dispatch:
 permissions:
   contents: write
@@ -16,6 +17,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -25,15 +28,15 @@ jobs:
       - name: Refresh upstream maintained package data
         run: pnpm --filter @idux/geo-areas update --latest @vant/area-data i18n-iso-countries libphonenumber-js pinyin-pro cldr-core cldr-localenames-full
       - run: pnpm update:data
+      - run: pnpm audit:data
+      - run: pnpm format
+      - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm check
-      - name: Record a patch release note when data changes
-        run: |
-          if ! git diff --quiet -- packages/geo-areas; then
-            mkdir -p .changeset
-            printf '%s\n' '---' '"@idux/geo-areas": patch' '---' '' 'Refresh geographic datasets from public upstream sources.' > .changeset/public-data-update.md
-          fi
+      - run: pnpm site:build
       - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
+          base: main
           branch: chore/update-public-data
           commit-message: 'chore: refresh public geographic datasets'
           title: 'chore: refresh public geographic datasets'
@@ -41,9 +44,12 @@ jobs:
             Regenerated from upstream public sources without manual data editing.
 
             Review data-manifest.json for source hashes, upstream versions and coverage gaps.
-            Validation: pnpm update:data; pnpm check.
+            Review the regenerated audit/data-audit.json, audit/README.md and CHINA_MAP_COVERAGE.md for conversion checks and coverage changes.
+
+            Validation: pnpm update:data; pnpm audit:data; pnpm lint; pnpm format:check; pnpm check; pnpm site:build.
+
+            Maintainer review and rebase merge are required. This PR updates data only; it does not generate Changesets, bump versions, create release tags or publish a package. Release notes and versioning are prepared separately when a maintainer decides to release.
           add-paths: |
-            .changeset/public-data-update.md
             packages/geo-areas/src/generated
             packages/geo-areas/src/data
             packages/geo-areas/data-manifest.json
@@ -51,6 +57,7 @@ jobs:
             packages/geo-areas/package.json
             pnpm-lock.yaml
             packages/geo-areas/licenses
+            packages/geo-areas/audit
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:

@@ -4,17 +4,32 @@ on:
     tags: ['v*']
 permissions:
   contents: read
-  id-token: write
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
 jobs:
   publish:
     if: github.repository == 'IDuxFE/geo-areas' && vars.NPM_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: npm
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
     defaults:
       run:
         working-directory: packages/geo-areas
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify release commit and successful upstream validation
+        run: node .github/scripts/verify-release.mjs
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -23,9 +38,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
         working-directory: .
-      - name: Check tag matches package version
-        run: node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if (`v${p.version}` !== process.env.GITHUB_REF_NAME) throw new Error("Tag/version mismatch")'
+      - name: Use an npm CLI with Trusted Publishing support
+        run: npm install --global npm@11 && npm --version
+      - run: pnpm lint && pnpm format:check
+        working-directory: .
+      - run: node --test .github/scripts/*.test.mjs
+        working-directory: .
       - run: pnpm check
       - name: Pack with the actual repository URL for provenance
         run: node scripts/pack-for-ci.mjs
-      - run: pnpm publish release.tgz --ignore-scripts --access public --provenance
+      - run: npm publish release.tgz --ignore-scripts --access public --provenance

@@ -1,5 +1,5 @@
 # Changesets
 
-Run `pnpm changeset` for changes to the published data package. Choose a semantic version bump and write the release note in English. Documentation, CI and playground-only changes may use an empty changeset (`pnpm changeset --empty`). Multiple changes can accumulate before a release.
+Prepare Changesets when the intended code has been reviewed and committed and a maintainer is preparing a release. Summarize the included changes in English and choose the appropriate semantic version bump. Routine development, documentation and CI changes do not require generating Changesets as they are made.
 
-When ready, a maintainer runs `pnpm version:packages` on a branch and opens a release PR. This consumes the notes and updates the package version and CHANGELOG.md. Versioning does not publish. npm publishing is currently disabled; see [maintainer setup](../.github/MAINTAINERS.md).
+For subsequent releases, run `pnpm version:packages` on a release branch to consume the notes and update the package version and CHANGELOG.md, then open a release PR. For the first publication, explicitly confirm the initial version; running a version bump is not required to publish the first package. Versioning does not publish. See [maintainer setup](../.github/MAINTAINERS.md) for publishing prerequisites.

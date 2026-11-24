@@ -6,6 +6,7 @@ import { describeChinaMaps, chinaMapCoverageMarkdown } from './china-map-coverag
 import { loadDataVMap } from './datav.mjs'
 import { validateChinaMapCoverage } from './validate-coverage.mjs'
 import { dataFingerprint } from './fingerprint.mjs'
+import { generateContinents } from './continents.mjs'
 import iso from 'i18n-iso-countries'
 import { useCascaderAreaData } from '@vant/area-data'
 import { getCountries, getCountryCallingCode } from 'libphonenumber-js'
@@ -366,7 +367,9 @@ try {
   assert(phones.length > 230, 'Phone source unexpectedly shrank')
   console.log('Fetching ECharts world map and Natural Earth boundaries…')
   const [echartsWorld, echartsChina, world, admin1, china, admin1Boundaries] = await allSources([
-    fetchJSON('https://echarts.apache.org/examples/data/asset/geo/world.json'),
+    fetchJSON(
+      'https://raw.githubusercontent.com/apache/echarts/master/test/data/map/json/world.json',
+    ),
     fetchJSON('https://raw.githubusercontent.com/apache/echarts/3.8.5/map/json/china.json'),
     fetchJSON(`${neBase}/ne_50m_admin_0_countries.geojson`),
     fetchJSON(`${neBase}/ne_10m_admin_1_label_points_details.geojson`),
@@ -631,6 +634,7 @@ try {
   for (const [id, map] of maps) if (!/^\d{6}$/.test(id)) maps.set(id, mergeMapUnits(map))
   for (const [id, map] of maps) validateMap(map, id)
   validateChinaMapCoverage(maps, !args.has('--province-only'))
+  await emit('generated/continents.ts', generateContinents())
   await dataset('countries', 'Country', countries)
   await dataset('phone', 'PhoneRegion', phones)
   await dataset('china', 'ChinaArea', chinaAreas)
@@ -730,6 +734,8 @@ try {
     'licenses/echarts-3.8.5-BSD-3-Clause.txt',
     await readFile('scripts/notices/echarts-3.8.5-BSD-3-Clause.txt', 'utf8'),
   )
+  for (const name of ['echarts-world-Apache-2.0.txt', 'echarts-world-NOTICE.txt'])
+    await emit(`licenses/${name}`, await readFile(`scripts/notices/${name}`, 'utf8'))
   for (const folder of ['generated', 'data']) {
     await rm(`src/${folder}`, { recursive: true, force: true })
     await rename(`${stage}/${folder}`, `src/${folder}`)

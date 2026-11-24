@@ -57,7 +57,13 @@ for (const mode of ['network', 'http', 'json'])
       assert.equal(report.sourceFallbacks[0].status, 'failed')
       assert.match(report.sourceFallbacks[0].to, /100000\.json$/)
       assert.match(report.error, /geo.datav.aliyun.com/)
-      assert.match(report.error, /echarts.apache.org/)
+      assert.ok(
+        report.requestFailures.some(
+          (failure) =>
+            failure.url ===
+            'https://raw.githubusercontent.com/apache/echarts/master/test/data/map/json/world.json',
+        ),
+      )
       assert.ok(Number.isFinite(Date.parse(report.checkedAt)))
     } finally {
       if (previousReport) await writeFile('.cache/update-report.json', previousReport)

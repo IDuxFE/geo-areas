@@ -42,7 +42,6 @@
     "dist",
     "README.md",
     "LICENSE",
-    "THIRD_PARTY_NOTICES.md",
     "licenses",
     "CHINA_MAP_COVERAGE.md",
     "API.md",
@@ -52,12 +51,16 @@
     "API.zh.md"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=20.19.0"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./locale": {
+      "types": "./dist/locale.d.ts",
+      "import": "./dist/locale.js"
     },
     "./countries": {
       "types": "./dist/countries.d.ts",
@@ -111,5 +114,6 @@
   "homepage": "https://iduxfe.github.io/geo-areas/",
   "bugs": {
     "url": "https://github.com/IDuxFE/geo-areas/issues"
-  }
+  },
+  "author": "IDuxFE <idux.feteam@gmail.com>"
 }

@@ -33,7 +33,7 @@
     "i18n-iso-countries": "^7.14.0",
     "libphonenumber-js": "^1.13.17",
     "pinyin-pro": "^3.29.5",
-    "typescript": "^7.0.2"
+    "typescript": "~6.0.3"
   },
   "type": "module",
   "sideEffects": false,

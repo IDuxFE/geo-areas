@@ -1,0 +1,40 @@
+{
+  "name": "@idux/geo-areas-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/build-map-index.mjs && archive dev",
+    "build": "node --test scripts/i18n.test.mjs && node scripts/build-map-index.mjs && vue-tsc --noEmit && archive build && node scripts/prepare-pages.mjs",
+    "test:i18n": "node --test scripts/i18n.test.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@idux/cdk": "^2.11.0",
+    "@idux/components": "^2.11.0",
+    "@idux/geo-areas": "workspace:*",
+    "echarts": "^6.1.0",
+    "vue": "^3.5.46",
+    "@idux/archive-app": "^0.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.11",
+    "typescript": "~6.0.3",
+    "vite": "^8",
+    "vue-tsc": "^3",
+    "@idux/archive": "^0.5.0",
+    "@idux/archive-loader-vue": "^0.5.0",
+    "@idux/archive-utils": "^0.5.0",
+    "yaml-front-matter": "^4.1.1"
+  },
+  "author": "IDuxFE <idux.feteam@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IDuxFE/geo-areas.git",
+    "directory": "packages/site"
+  },
+  "homepage": "https://iduxfe.github.io/geo-areas/",
+  "bugs": {
+    "url": "https://github.com/IDuxFE/geo-areas/issues"
+  }
+}

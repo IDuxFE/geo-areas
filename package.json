@@ -1,9 +1,9 @@
 {
   "name": "geo-areas-workspace",
   "private": true,
-  "packageManager": "pnpm@11.8.0",
   "engines": {
-    "node": ">=22"
+    "node": "^20.19.0 || >=22.12.0",
+    "pnpm": ">=10 <11"
   },
   "scripts": {
     "build": "pnpm --filter @idux/geo-areas run build",
@@ -11,8 +11,8 @@
     "check": "pnpm --filter @idux/geo-areas run check",
     "typecheck": "pnpm --filter @idux/geo-areas run typecheck",
     "update:data": "pnpm --filter @idux/geo-areas run update:data",
-    "playground": "pnpm build && pnpm --filter @idux/geo-areas-playground dev",
-    "playground:build": "pnpm build && pnpm --filter @idux/geo-areas-playground build",
+    "start": "pnpm build && pnpm --filter @idux/geo-areas-site dev",
+    "site:build": "pnpm build && pnpm --filter @idux/geo-areas-site build",
     "prepare": "husky",
     "lint": "oxlint --deny-warnings .",
     "format": "oxfmt --write .",
@@ -23,7 +23,7 @@
     "test:coverage": "pnpm --filter @idux/geo-areas run test:coverage"
   },
   "devDependencies": {
-    "@changesets/cli": "^3.0.3",
+    "@changesets/cli": "^2.31.1",
     "c8": "^12.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.1",
@@ -37,5 +37,15 @@
       "oxfmt --write --no-error-on-unmatched-pattern"
     ],
     "*.{json,jsonc,yaml,yml,md,html,css}": "oxfmt --write --no-error-on-unmatched-pattern"
-  }
+  },
+  "author": "IDuxFE <idux.feteam@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IDuxFE/geo-areas.git"
+  },
+  "homepage": "https://iduxfe.github.io/geo-areas/",
+  "bugs": {
+    "url": "https://github.com/IDuxFE/geo-areas/issues"
+  },
+  "packageManager": "pnpm@10.34.9"
 }

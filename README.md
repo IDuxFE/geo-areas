@@ -1,6 +1,6 @@
 # Geo Areas
 
-[English](README.md) | [简体中文](README.zh.md)
+English | [简体中文](README.zh.md)
 
 [![CI](https://github.com/IDuxFE/geo-areas/actions/workflows/ci.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml)
@@ -8,47 +8,177 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas?ref=badge_shield)
 
-Geographic data for TypeScript: countries and regions, calling codes, administrative divisions, and ECharts-ready GeoJSON, with automated data updates and an interactive map playground.
+Geographic reference data for JavaScript and TypeScript applications: country and region selectors, international calling codes, administrative hierarchies, and GeoJSON maps loaded on demand.
 
-- [@idux/geo-areas](packages/geo-areas/README.md): the ESM data package with TypeScript declarations and lazily loaded maps.
-- [API reference](API.md): public interfaces, parameters, return values and data fields.
-- [Playground](https://iduxfe.github.io/geo-areas/): an interactive Vue 3 / iDux demo with map drill-down ([source](packages/playground/)). The site deploys after a successful CI run on `main`.
+Use the data with your own UI or mapping library. The package is framework-independent and ships ESM modules with TypeScript declarations; Vue, iDux and ECharts power the example site and are installed separately when needed.
+
+## Capabilities
+
+| Capability                      | What you can build                                                      | Main APIs                                                              |
+| ------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Countries and regions           | Country selectors, code lookup and options grouped by continent         | `getCountry`, `getCountryOptions`, `getGroupedCountryOptions`          |
+| International calling codes     | Telephone region selectors and calling-code lookup                      | `getPhoneOptions`, `getGroupedPhoneOptions`, `getRegionsByCallingCode` |
+| China administrative divisions  | Province → city → district cascaders and adcode lookup                  | `getChinaAreaOptions`, `getChinaArea`, `chinaAreaTree`                 |
+| Global first-level subdivisions | State, province and equivalent administrative selectors                 | `getSubdivisions`                                                      |
+| GeoJSON boundaries              | World and regional maps, with drill-down where boundaries are available | `loadGeoJSON`, `hasGeoJSON`, `availableMaps`                           |
+| Chinese and English labels      | Consistent display names across options and maps                        | `setLocale`, `getLocale`                                               |
+| Source traceability             | Inspect source versions, hashes and coverage for the installed snapshot | `/manifest`                                                            |
+
+[Explore the examples](https://iduxfe.github.io/geo-areas/) · [Full API reference](API.md)
+
+## Installation
+
+The package is being prepared for its first npm release. Until it is published, use the repository workspace to try the examples. Once available on npm, install it with your preferred package manager:
+
+```sh
+npm install @idux/geo-areas
+# or
+pnpm add @idux/geo-areas
+```
+
+Use an ESM-compatible bundler for browser applications, or Node.js 20.19+ for server-side scripts. Browser consumers do not need a Node.js runtime. Import individual entry points to select the datasets your application uses.
+
+## Quick start
+
+### Country and region selectors
+
+```ts
+import { setLocale } from '@idux/geo-areas/locale'
+import { getCountry, getCountryOptions, getGroupedCountryOptions } from '@idux/geo-areas/countries'
+
+setLocale('en')
+
+const options = getCountryOptions()
+// China: { value: 'CN', label: 'China', level: 'country' }
+
+const groups = getGroupedCountryOptions()
+// [{ value: '142', label: 'Asia', children: [...] }, ...]
+
+const china = getCountry('CHN') // Also accepts 'CN' and '156'.
+console.log(china?.name.en) // 'China'
+```
+
+Flat options use `value` and `label`; grouped options add a `children` array. Adapt these fields to your select component. Continent groups follow CLDR membership with Antarctica as a separate group; empty groups are omitted.
+
+### Telephone region selectors
+
+```ts
+import { getPhoneOptions, getRegionsByCallingCode } from '@idux/geo-areas/phone'
+
+const options = getPhoneOptions()
+// China: { value: 'CN', label: 'China (+86)', callingCode: '+86' }
+
+const regions = getRegionsByCallingCode('+1')
+// Multiple regions share +1; use the region code as the option key.
+```
+
+For grouped selectors, use `getGroupedPhoneOptions()`. These APIs provide reference metadata; use a telephone-number library when you need number parsing or validation.
+
+### China province, city and district selectors
+
+```ts
+import { getChinaAreaOptions, getChinaArea } from '@idux/geo-areas/china'
+
+const options = getChinaAreaOptions() // Province → city → district.
+const provinces = getChinaAreaOptions(1) // Province only.
+const cities = getChinaAreaOptions(2) // Province → city.
+
+const district = getChinaArea('110101')
+console.log(district?.name['zh-CN']) // '东城区'
+```
+
+Each option has `value` (adcode), `label`, `level` and optional `children`. `chinaAreas` starts at province level; `chinaAreaTree` adds the country root when your UI needs it.
+
+### Global first-level subdivisions
+
+```ts
+import { getSubdivisions } from '@idux/geo-areas/subdivisions'
+
+const states = getSubdivisions('US')
+const california = states.find((area) => area.code === 'US-CA')
+console.log(california?.name.en) // 'California'
+```
+
+Subdivisions retain their country code, bilingual names and upstream administrative type. Availability of subdivision records and map boundaries may differ.
+
+### Load and display a map
+
+```ts
+import { hasGeoJSON, loadGeoJSON } from '@idux/geo-areas/geojson'
+
+const world = await loadGeoJSON('world')
+const china = await loadGeoJSON('CN-provinces')
+
+if (hasGeoJSON('US-provinces')) {
+  const states = await loadGeoJSON('US-provinces')
+  console.log(states.features.length)
+}
+```
+
+`china` is an alias of `CN-provinces`; DataV's national map is available separately as `100000`. Use `availableMaps` or `hasGeoJSON` to check the installed snapshot's map IDs before building drill-down navigation.
+
+To display the data with ECharts, install `echarts` separately and register the loaded map:
+
+```ts
+import { init, registerMap, use } from 'echarts/core'
+import { GeoComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import { loadGeoJSON } from '@idux/geo-areas/geojson'
+
+use([GeoComponent, CanvasRenderer])
+registerMap('world', await loadGeoJSON('world'))
+
+// Provide a visible element with explicit dimensions.
+const element = document.getElementById('map')!
+const chart = init(element)
+chart.setOption({ geo: { map: 'world', roam: true } })
+// Call chart.resize() when its container changes size; chart.dispose() on teardown.
+```
+
+Maps are loaded asynchronously from package assets, without calls to an external geographic-data service. In browser builds, loading a map may fetch its generated asset chunk. Each `loadGeoJSON` call returns an independent localized copy.
+
+## Language configuration
+
+The initial locale is `zh-CN`; supported values are `zh-CN` and `en`. Configure it once at application startup with `setLocale`. Options and map-loading APIs read the shared locale and do not accept a locale argument.
+
+Changing the locale affects subsequent calls. Regenerate options or reload maps to update existing views; raw records retain both names in `name`, and raw map JSON retains them in `properties.names`. Frameworks should connect their reactive locale state to these calls. On servers, locale state is shared within a package instance: avoid changing it per concurrent request.
+
+For complete types, subpath exports and error behavior, see the [API reference](API.md). Data coverage and third-party terms are described in the [sources and licensing guide](packages/geo-areas/README.md#sources-and-licensing).
 
 ## Development
 
-Requires Node.js 22+ and pnpm 11.8.0. This package is under development and has not been published to npm. Use the workspace to try it locally.
+To develop the package or run the example site, use Node.js 20.19+ within the 20.x line, or Node.js 22.12+, and pnpm 10 (the repository pins 10.34.9 for reproducible patch hashes).
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm playground
-pnpm playground:build
+pnpm start
+pnpm site:build
 pnpm check
 pnpm test:coverage
 ```
 
-Run `pnpm update:data` to refresh data from public upstream sources. Playground output is written to `packages/playground/dist`.
+Run `pnpm update:data` to refresh data from public upstream sources. Site output is written to `packages/site/dist`.
 
 `pnpm lint` runs Oxlint; `pnpm format` formats files with Oxfmt; `pnpm format:check` checks formatting. Husky and lint-staged check staged files before commits. Generated data, source manifests and third-party license snapshots retain their original formatting.
 
 ## Packaging and release notes
 
-The workspace root and playground are private packages. Only `packages/geo-areas` is publishable.
+The workspace root and site are private packages. Only `packages/geo-areas` is publishable.
 
 ```sh
-pnpm changeset              # record a package change for a future release
 pnpm check
 pnpm --dir packages/geo-areas pack
 ```
 
-The archive includes runtime data, documentation, licenses and source notices. `prepack` runs the build, tests and consumer type checks. CI also builds the playground and uploads a package preview without publishing it.
+The archive includes runtime data, documentation, licenses and source notices. `prepack` runs the build, tests and consumer type checks. CI also builds the site and uploads a package preview without publishing it.
 
-Changesets accumulate until a maintainer runs `pnpm version:packages` on a release branch. This updates `packages/geo-areas/package.json` and its [changelog](packages/geo-areas/CHANGELOG.md); it does not publish. npm publishing is disabled. See [maintainer setup](.github/MAINTAINERS.md) before enabling a release.
+Prepare release notes, the version and CHANGELOG only when the code has been reviewed and a release is being prepared. See [maintainer setup](.github/MAINTAINERS.md) for the release PR and publishing procedure.
 
 ## Data and licenses
 
-Project code is MIT licensed. Third-party data has separate terms; see [source notices](packages/geo-areas/THIRD_PARTY_NOTICES.md), including the outstanding redistribution checks. Automated dependency scans do not establish permission to redistribute map datasets.
+Project code is MIT licensed. Third-party data has separate terms; see [source notices](packages/geo-areas/README.md#sources-and-licensing). Automated dependency scans do not establish permission to redistribute map datasets.
 
-The world overview uses Apache ECharts example data. China province maps can use DataV `100000` or ECharts 3.8.5 `china` (alias `CN-provinces`). Coverage and drill-down codes are documented in the [package README](packages/geo-areas/README.md).
+The world overview uses [`world.json` from the Apache ECharts repository](https://github.com/apache/echarts/blob/master/test/data/map/json/world.json), fetched directly from GitHub Raw by the update script. China province maps can use DataV `100000` or ECharts 3.8.5 `china` (alias `CN-provinces`). Coverage and drill-down codes are documented in the [package README](packages/geo-areas/README.md).
 
 ## Contributing
 

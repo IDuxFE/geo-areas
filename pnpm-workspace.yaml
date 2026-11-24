@@ -10,6 +10,7 @@ overrides:
   glob@>=14.0.2>minimatch: ^11.0.1
   # c8/test-exclude have not adopted the fixed glob/minimatch or current find-up APIs.
   c8>find-up: ^8.0.0
+  '@manypkg/find-root>find-up': ^8.0.0
   p-locate>p-limit: ^7.3.3
   postcss>nanoid: ^6.0.2
   istanbul-lib-report>supports-color: ^11.0.0
@@ -21,3 +22,4 @@ overrides:
 patchedDependencies:
   c8@12.0.0: patches/c8@12.0.0.patch
   istanbul-lib-report@3.0.1: patches/istanbul-lib-report@3.0.1.patch
+  '@manypkg/find-root@1.1.0': patches/@manypkg__find-root@1.1.0.patch

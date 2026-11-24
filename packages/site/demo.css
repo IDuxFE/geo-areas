@@ -1,0 +1,61 @@
+.geo-demo {
+  min-width: 0;
+}
+.detail {
+  font-size: 14px;
+  color: var(--geo-demo-text);
+  margin: 8px 0 0;
+}
+
+.demo-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.demo-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 16px 0;
+}
+.demo-columns > div {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.demo-results {
+  max-height: 240px;
+  overflow: auto;
+}
+.demo-json {
+  max-height: 260px;
+  overflow: auto;
+  font-size: 12px;
+}
+.demo-desc {
+  margin-top: 12px;
+}
+.demo-desc .ix-desc-content {
+  overflow-wrap: anywhere;
+}
+
+.demo-sources {
+  margin: 0;
+  padding-inline-start: 16px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.demo-apis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--geo-demo-text);
+}
+.demo-apis code {
+  overflow-wrap: anywhere;
+}

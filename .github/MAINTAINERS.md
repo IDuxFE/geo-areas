@@ -3,8 +3,8 @@
 ## Repository policy
 
 - Upstream: `IDuxFE/geo-areas`; personal forks use `origin`, upstream uses `upstream` locally.
-- `main` is protected by an active ruleset with no bypass actors: pull requests, successful `CI required` and `CodeQL analysis`, an up-to-date branch, resolved review conversations and linear history are required; deletion and force pushes are blocked.
-- Only rebase merge is enabled. Auto-merge is disabled. Maintainers merge manually. No independent approval count is required during initial development so a maintainer can merge their own passing PR; review discussions still must be resolved.
+- `main` is protected by an active ruleset with an administrator exception restricted to pull requests: pull requests, successful `CI required` and `CodeQL analysis`, an up-to-date branch, resolved review conversations and linear history are required; deletion and force pushes are blocked.
+- Only rebase merge is enabled. Auto-merge is disabled. Maintainers merge manually. The ordinary path requires one approval and dismisses stale approvals after pushes. Organization administrators have a PR-only bypass for exceptional cases; it does not permit direct pushes. Review discussions must be resolved.
 - Ordinary organization members have read access and contribute through forks. Organization owners retain administrative access; a repository ruleset cannot remove their ability to administer organization settings.
 - Actions uses read-only default permissions. Workflows request write permissions only for specific jobs. Fork PR checks use `pull_request`, never execute PR code through `pull_request_target`, and have no publishing credentials.
 
@@ -12,15 +12,17 @@
 
 CI checks Node.js 20.19.0, 22 and 24, formatting, lint, package build/tests/types, Changesets, site build and the packed archive. `CI required` aggregates the matrix and coverage jobs. Coverage includes handwritten runtime TypeScript and maintenance scripts, including unexecuted files, but excludes generated snapshots/loaders. TypeScript source maps connect runtime coverage back to source.
 
-Codecov uses GitHub OIDC for upstream runs and public fork PR uploads. The organization GitHub App must have access to the repository. Review `codecov.yml`: project coverage may drop at most one percentage point from its baseline, and changed lines target 90%. Codecov checks are initially advisory to branch protection until a main-branch baseline exists; coverage generation and upload failures still fail CI.
+Codecov uses GitHub OIDC for upstream runs and public fork PR uploads. The organization GitHub App must have access to the repository. Review `codecov.yml`: project coverage may drop at most one percentage point from its baseline, and changed lines target 90%. Codecov checks are initially advisory to branch protection until a main-branch baseline exists; local coverage must meet 95% lines/statements, 90% functions and 85% branches. These thresholds fail CI independently of Codecov availability; upload failures also fail CI.
 
 FOSSA's organization GitHub App scans this repository automatically. License Compliance, Security Analysis and Dependency Quality statuses have been verified on merged dependency and documentation PRs. `.fossa.yml` excludes local build/cache directories and disables CLI telemetry. No API key is embedded and no duplicate CLI project is created. If the App does not produce a check, enable/import `IDuxFE/geo-areas` in the organization's FOSSA dashboard. Do not add a required FOSSA status until its exact check name and a successful scan have been verified. FOSSA dependency results do not resolve map-data redistribution terms; continue reviewing the sources and licensing section in `packages/geo-areas/README.md`.
+
+Run `pnpm check:repository` with an authenticated maintainer `gh` session to audit these repository, branch, Actions and Pages policies without changing them. Administrative read access is needed for settings endpoints; this command is intentionally separate from fork PR CI.
 
 CodeQL analyzes handwritten JavaScript/TypeScript on PRs, main and weekly. Dependabot checks Actions and npm dependencies weekly. Dependabot alerts, automated security fixes, secret scanning, push protection and private vulnerability reporting are enabled in GitHub settings where supported.
 
 ## Pages
 
-GitHub Pages uses Actions and the `github-pages` environment, restricted to `main`. After a successful CI push run on upstream `main`, `pages.yml` downloads that run's prebuilt `github-pages` artifact and deploys it without checking out or executing contributor code. PR artifacts are built for validation but never deployed by this workflow.
+GitHub Pages uses Actions and the `github-pages` environment, restricted to `main`. After a successful CI push run on upstream `main`, `pages.yml` downloads that run's prebuilt `github-pages` artifact and reuploads it in the deployment run. The deployment script is checked out from trusted main, uses the exact upload artifact ID, waits for REST metadata visibility, verifies run ownership, and requests an OIDC-authenticated Pages deployment. It polls to a terminal result and cancels on timeout or polling failure; it does not check out the triggering commit or execute PR code. PR artifacts are built for validation but never deployed by this workflow.
 
 The site is served at <https://iduxfe.github.io/geo-areas/>. Its first deployment requires merging the setup PR and a successful main-branch CI run. Before merging, only the build and artifact can be verified. Use Actions to inspect the deployment; a PR cannot validate the final public URL before the deployment workflow exists on main.
 
@@ -54,3 +56,11 @@ The data-update workflow runs upstream only and opens a PR with changed data and
 7. After merging the workflow change, manually run **Update public-source datasets** on `main`. If it creates or updates a PR, verify that CI and CodeQL start without clicking **Approve workflows to run**, then review and rebase merge yourself. An unchanged snapshot may produce no PR update and therefore no new checks.
 
 The workflow fails early with configuration guidance if either credential is missing. The default `GITHUB_TOKEN` has read-only contents permission and checkout does not persist credentials. The App token is created only after validation, scoped to this repository with contents/PR write permissions, and revoked by the token action during job cleanup. There is no fallback to `GITHUB_TOKEN`, which would restore the manual workflow-approval requirement.
+
+## Data update recovery
+
+The updater holds `packages/geo-areas/.update-lock` for the update and stages all output before installation. A caught installation failure restores previous generated files, maps, manifest, coverage documentation and licenses. If rollback itself fails, `.update-backup-*` and the lock are retained and the report identifies the recovery directory. Reports include nested error causes and filesystem codes.
+
+Multi-path installation is not atomic against process termination or power loss. After an interrupted update, verify no updater is running, inspect the backup directory and restore its entries to the corresponding package paths (`generated` → `src/generated`, `data` → `src/data`, other entries → package root). An absent backup entry may already have been restored or may not have been moved yet; do not delete current files blindly. Check the manifest fingerprint with `pnpm check` before removing the lock/backups and retrying. Do not remove locks belonging to another active update.
+
+`pnpm docs:sync` regenerates packaged English and Chinese documentation from the site sources; package compilation itself consumes only package-local files. CI regenerates docs and checks their committed copies. Review [dependency patch maintenance](../patches/README.md) when changing overrides or patched dependencies.

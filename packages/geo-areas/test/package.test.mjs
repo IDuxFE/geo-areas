@@ -5,6 +5,8 @@ import { mkdtemp, readFile, access, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { generateApiDocs } from '../scripts/generate-api-docs.mjs'
+import { generateReadmeDocs } from '../scripts/generate-readme-docs.mjs'
 
 test('the packed package has usable documentation and loads maps outside the workspace', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'geo-areas-package-'))
@@ -15,10 +17,20 @@ test('the packed package has usable documentation and loads maps outside the wor
     })
     execFileSync('tar', ['-xzf', archive, '-C', directory])
     const root = join(directory, 'package')
+    await generateApiDocs(pathToFileURL(directory + '/'))
+    await generateReadmeDocs(pathToFileURL(directory + '/'))
+    for (const file of ['API.md', 'API.zh.md', 'README.md', 'README.zh.md']) {
+      assert.equal(
+        await readFile(join(root, file), 'utf8'),
+        await readFile(join(directory, file), 'utf8'),
+        `${file}: packed reference must match the current site sources; run pnpm build`,
+      )
+    }
     for (const file of [
       'README.md',
+      'README.zh.md',
       'API.md',
-      'THIRD_PARTY_NOTICES.md',
+      'API.zh.md',
       'CHINA_MAP_COVERAGE.md',
       'audit/README.md',
     ]) {

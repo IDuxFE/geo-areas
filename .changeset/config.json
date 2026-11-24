@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@idux/geo-areas-playground"]
+  "ignore": ["@idux/geo-areas-site"]
 }

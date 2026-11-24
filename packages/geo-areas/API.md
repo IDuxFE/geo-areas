@@ -1,24 +1,27 @@
+<!-- Generated from packages/site/src/ by the package build. Edit the site source documents, not this file. -->
+
 # @idux/geo-areas API
 
 English | [简体中文](API.zh.md)
 
 Public JavaScript/TypeScript interfaces and data formats, matching the package exports. All data is a packaged snapshot; counts, names and map coverage can change after updates. Consult the installed version's manifest.
 
-## 1. Entry points
+## Entry points
 
-| Entry                | Exports                                                                        |
-| -------------------- | ------------------------------------------------------------------------------ |
-| `@idux/geo-areas`    | All runtime APIs and public types below, except the manifest default export    |
-| `/countries`         | `countries`, `getCountry`, `getCountryOptions`                                 |
-| `/phone`             | `phoneRegions`, `getPhoneRegion`, `getRegionsByCallingCode`, `getPhoneOptions` |
-| `/china`             | `chinaAreas`, `chinaAreaTree`, `getChinaArea`, `getChinaAreaOptions`           |
-| `/subdivisions`      | `subdivisions`, `getSubdivisions`                                              |
-| `/geojson`           | `availableMaps`, `hasGeoJSON`, `loadGeoJSON`, `localizeGeoJSON`; type `MapId`  |
-| `/types`             | Public data types below, excluding `MapId`; use `import type`                  |
-| `/manifest`          | Default JSON export typed as `DataManifest`                                    |
-| `/geojson/<id>.json` | Default raw map JSON typed as `MapGeoJSON`                                     |
+| Entry                | Exports                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------------------------- |
+| `@idux/geo-areas`    | All runtime APIs and public types below, except the manifest default export                              |
+| `/locale`            | `setLocale`, `getLocale`                                                                                 |
+| `/countries`         | `countries`, `getCountry`, `getCountryOptions`, `getGroupedCountryOptions`                               |
+| `/phone`             | `phoneRegions`, `getPhoneRegion`, `getRegionsByCallingCode`, `getPhoneOptions`, `getGroupedPhoneOptions` |
+| `/china`             | `chinaAreas`, `chinaAreaTree`, `getChinaArea`, `getChinaAreaOptions`                                     |
+| `/subdivisions`      | `subdivisions`, `getSubdivisions`                                                                        |
+| `/geojson`           | `availableMaps`, `hasGeoJSON`, `loadGeoJSON`, `localizeGeoJSON`; type `MapId`                            |
+| `/types`             | Public data types below, excluding `MapId`; use `import type`                                            |
+| `/manifest`          | Default JSON export typed as `DataManifest`                                                              |
+| `/geojson/<id>.json` | Default raw map JSON typed as `MapGeoJSON`                                                               |
 
-Paths beginning with `/` are relative to `@idux/geo-areas`. The package is ESM and requires Node.js 22+. Browser projects use a bundler. Maps are separate ESM imports without runtime external-data services.
+Paths beginning with `/` are relative to `@idux/geo-areas`. The package uses ESM. Browser projects use a bundler; Node.js environments support 20.19+. Maps load asynchronously on demand from bundled data, without external data services.
 
 ```ts
 import { getCountry } from '@idux/geo-areas/countries'
@@ -27,7 +30,7 @@ import type { MapId } from '@idux/geo-areas/geojson'
 import manifest from '@idux/geo-areas/manifest' with { type: 'json' }
 ```
 
-## 2. Shared conventions
+## Shared conventions
 
 ```ts
 export type Locale = 'zh-CN' | 'en'
@@ -40,9 +43,15 @@ export interface LocalizedName {
 }
 
 export type Coordinate = [longitude: number, latitude: number]
+
+export interface OptionGroup<T> {
+  value: string
+  label: string
+  children: T[]
+}
 ```
 
-- Functions accepting `locale` default to `zh-CN`. Only the two declared locales are supported; arbitrary strings have no runtime validation or fallback guarantee.
+- Option generation, map loading and localization APIs all read `getLocale()`, initially `zh-CN`, and do not accept locale arguments. Only the two declared locales are supported; arbitrary strings have no runtime validation or fallback guarantee.
 - Country, administrative and calling codes are strings, retaining leading zeros. Different systems such as `CN` and `100000` are not interchangeable.
 - Global first-level subdivisions use `province`; China continues with `city` and `district`. Country/territory entities use `country`.
 - Names retain both languages. Display values may fall back to upstream original names or pinyin as described below.
@@ -52,7 +61,28 @@ export type Coordinate = [longitude: number, latitude: number]
 - Only explicitly described normalization occurs. Queries do not trim whitespace; China codes and map IDs are not zero-padded.
 - `readonly` arrays are a TypeScript constraint, not a runtime freeze. Queries share entry references; copy before editing.
 
-## 3. Countries and regions
+### Shared locale configuration
+
+Import from `/locale` or the main entry.
+
+```ts
+export function setLocale(locale: Locale): void
+export function getLocale(): Locale
+```
+
+```ts
+import { setLocale } from '@idux/geo-areas/locale'
+import { getCountryOptions } from '@idux/geo-areas/countries'
+import { loadGeoJSON } from '@idux/geo-areas/geojson'
+
+setLocale('en') // Configure once at application startup.
+getCountryOptions() // English labels.
+await loadGeoJSON('world') // English map names.
+```
+
+The main entry and subpath imports share the same default within one package instance. Changes apply to subsequent calls; existing results and raw bilingual data/JSON remain unchanged. Rebuild options or reload maps after switching languages. `loadGeoJSON` captures the locale when called, before awaiting its import. For China option depth, use `getChinaAreaOptions(2)`. Locale configuration is package-instance state shared by all calls within that instance.
+
+## Countries and regions
 
 Import from `/countries` or the main entry.
 
@@ -73,7 +103,7 @@ export const countries: readonly Country[]
 
 export function getCountry(code: string): Country | undefined
 
-export function getCountryOptions(locale?: Locale): {
+export function getCountryOptions(): {
   value: string
   label: string
   level: 'country'
@@ -82,9 +112,56 @@ export function getCountryOptions(locale?: Locale): {
 
 - `countries`: the full country/territory catalogue.
 - `getCountry(code)`: accepts alpha-2, alpha-3 or numeric strings. Letters are case-insensitive; numeric strings are padded to three digits. Numbers are not accepted by the declared type. No match returns `undefined`.
-- `getCountryOptions(locale = 'zh-CN')`: a new array with `value = code`, `label = name[locale]` and `level = 'country'`; calling codes are excluded.
+- `getCountryOptions()`: a new array with `value = code`, `label = name[getLocale()]` and `level = 'country'`; calling codes are excluded.
 
-## 4. Calling codes
+### Options grouped by continent
+
+```ts
+import { getGroupedCountryOptions } from '@idux/geo-areas/countries'
+
+const groups = getGroupedCountryOptions()
+// { value: '142', label: 'Asia', children: [...] }[]
+```
+
+`getGroupedCountryOptions()` returns `OptionGroup<ReturnType<typeof getCountryOptions>[number]>[]`. Each group has `value`, `label` and `children`; leaves retain all flat option fields and their relative order. Labels follow `getLocale()`. Each call returns new groups and leaf options.
+
+Groups are ordered as Asia (`142`), Europe (`150`), North America (`003`, including Central America and the Caribbean), South America (`005`), Africa (`002`), Oceania (`009`), and Antarctica (`010`). Empty groups are omitted; unmatched regions appear last under `other` (Other regions). There is no built-in common/favorite regions list.
+
+Membership follows the bundled CLDR territory-containment snapshot, assigning each region to one continent (for example, RU to Europe and TR to Asia), rather than splitting cross-continent countries by geometry. For this seven-continent presentation, AQ is explicitly assigned to Antarctica instead of CLDR’s Outlying Oceania. CLDR is only needed during data generation, not at runtime.
+
+## Global first-level subdivisions
+
+Import from `/subdivisions` or the main entry.
+
+```ts
+export interface Subdivision {
+  level: 'province'
+  administrativeType: string | null
+  code: string
+  countryCode: string
+  name: LocalizedName
+  chineseName: string | null
+  center: Coordinate | null
+}
+
+export const subdivisions: readonly Subdivision[]
+
+export function getSubdivisions(countryCode: string): Subdivision[]
+```
+
+| Field                | Meaning                                                                                               |
+| -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `level`              | Always `province`, the normalized first-level subdivision                                             |
+| `administrativeType` | Upstream type such as State, Province or Canton; `null` if missing                                    |
+| `code`               | Upstream ISO 3166-2 code such as `US-CA`, unique in the text catalogue                                |
+| `countryCode`        | Uppercase parent ISO alpha-2 code                                                                     |
+| `name`               | Chinese/English where available, otherwise original upstream name                                     |
+| `chineseName`        | Original Chinese translation or `null`, indicating display fallback                                   |
+| `center`             | Natural Earth representative label point or `null`; neither a capital location nor geometric centroid |
+
+`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns a new array of shared records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.
+
+## Calling codes
 
 Import from `/phone` or the main entry.
 
@@ -105,7 +182,7 @@ export function getPhoneRegion(countryCode: string): PhoneRegion | undefined
 
 export function getRegionsByCallingCode(callingCode: string): PhoneRegion[]
 
-export function getPhoneOptions(locale?: Locale): {
+export function getPhoneOptions(): {
   value: string
   label: string
   callingCode: string
@@ -115,9 +192,24 @@ export function getPhoneOptions(locale?: Locale): {
 - `phoneRegions`: all supported telephone regions.
 - `getPhoneRegion(countryCode)`: case-insensitive region lookup; no alpha-3/numeric aliases; returns `undefined` if absent.
 - `getRegionsByCallingCode(callingCode)`: accepts `+1` or `1` (adds `+`), returning all matching regions or `[]`. Does not parse complete phone numbers.
-- `getPhoneOptions(locale = 'zh-CN')`: new options with `value = countryCode`, `label = name[locale] + ' (' + callingCode + ')'`, plus `callingCode`. No `level` field.
+- `getPhoneOptions()`: new options with `value = countryCode`, `label = name[getLocale()] + ' (' + callingCode + ')'`, plus `callingCode`. No `level` field.
 
-## 5. Chinese administrative divisions
+### Options grouped by continent
+
+```ts
+import { getGroupedPhoneOptions } from '@idux/geo-areas/phone'
+
+const groups = getGroupedPhoneOptions()
+// { value: '142', label: 'Asia', children: [...] }[]
+```
+
+`getGroupedPhoneOptions()` returns `OptionGroup<ReturnType<typeof getPhoneOptions>[number]>[]`. Each group has `value`, `label` and `children`; leaves retain all flat option fields and their relative order. Labels follow `getLocale()`. Each call returns new groups and leaf options.
+
+Groups are ordered as Asia (`142`), Europe (`150`), North America (`003`, including Central America and the Caribbean), South America (`005`), Africa (`002`), Oceania (`009`), and Antarctica (`010`). Empty groups are omitted; unmatched regions appear last under `other` (Other regions). There is no built-in common/favorite regions list.
+
+Membership follows the bundled CLDR territory-containment snapshot, assigning each region to one continent (for example, RU to Europe and TR to Asia), rather than splitting cross-continent countries by geometry. For this seven-continent presentation, AQ is explicitly assigned to Antarctica instead of CLDR’s Outlying Oceania. CLDR is only needed during data generation, not at runtime.
+
+## Chinese administrative divisions
 
 Import from `/china` or the main entry.
 
@@ -162,49 +254,17 @@ export const chinaAreaTree: ChinaArea
 
 export function getChinaArea(adcode: string | number): ChinaArea | undefined
 
-export function getChinaAreaOptions(locale?: Locale, depth?: 1 | 2 | 3): AreaOption[]
+export function getChinaAreaOptions(depth?: 1 | 2 | 3): AreaOption[]
 ```
 
 - `chinaAreas`: full tree starting at provinces, excluding the country root.
 - `chinaAreaTree`: root `100000`, `parentCode = null`, `level = 'country'`, both coordinates `null`. Its children share data with `chinaAreas`.
 - `getChinaArea(adcode)`: converts to a string, then matches exactly, including the root; missing values return `undefined`.
-- `getChinaAreaOptions(locale = 'zh-CN', depth = 3)`: builds new options from provinces, excluding the root. Depth 1 includes provinces, 2 adds cities, 3 adds districts. Omits `children` at the depth limit or when no children exist.
+- `getChinaAreaOptions(depth = 3)`: builds new options from provinces, excluding the root. Depth 1 includes provinces, 2 adds cities, 3 adds districts. Omits `children` at the depth limit or when no children exist.
 
 Virtual municipality city nodes are retained: Beijing includes `110000 → 110100 → 110101`. Tree and boundary sources differ; a node does not guarantee a same-code map. Use `hasGeoJSON` before drill-down. District boundaries are generally city-map features, not separate district files.
 
-## 6. Global first-level subdivisions
-
-Import from `/subdivisions` or the main entry.
-
-```ts
-export interface Subdivision {
-  level: 'province'
-  administrativeType: string | null
-  code: string
-  countryCode: string
-  name: LocalizedName
-  chineseName: string | null
-  center: Coordinate | null
-}
-
-export const subdivisions: readonly Subdivision[]
-
-export function getSubdivisions(countryCode: string): Subdivision[]
-```
-
-| Field                | Meaning                                                                                               |
-| -------------------- | ----------------------------------------------------------------------------------------------------- |
-| `level`              | Always `province`, the normalized first-level subdivision                                             |
-| `administrativeType` | Upstream type such as State, Province or Canton; `null` if missing                                    |
-| `code`               | Upstream ISO 3166-2 code such as `US-CA`, unique in the text catalogue                                |
-| `countryCode`        | Uppercase parent ISO alpha-2 code                                                                     |
-| `name`               | Chinese/English where available, otherwise original upstream name                                     |
-| `chineseName`        | Original Chinese translation or `null`, indicating display fallback                                   |
-| `center`             | Natural Earth representative label point or `null`; neither a capital location nor geometric centroid |
-
-`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns a new array of shared records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.
-
-## 7. GeoJSON maps
+## GeoJSON maps
 
 Import from `/geojson` or the main entry.
 
@@ -214,14 +274,14 @@ export type MapId = GeneratedMapId | 'china'
 
 `GeneratedMapId` is internal. IDs are case-sensitive; their format alone does not guarantee coverage. `china` aliases `CN-provinces` and supports both loader and direct JSON imports. `availableMaps` includes the alias; `manifest.coverage.maps` lists source assets only.
 
-| ID                      | Content                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `world`                 | ECharts global overview                                                                                      |
-| Six-digit adcode        | DataV China national/province/city map; some are outlines only                                               |
-| Country code, e.g. `US` | Natural Earth independent country/territory outline, not its subdivisions                                    |
-| `<code>-provinces`      | Available Natural Earth non-China first-level subdivision boundaries                                         |
-| `china`                 | Alias of `CN-provinces`; registering under ECharts' `china` map name adds its built-in South China Sea inset |
-| `CN-provinces`          | ECharts 3.8.5 China province map, a special source for this suffix                                           |
+| ID                      | Content                                                                                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `world`                 | World overview from [Apache ECharts repository test data](https://github.com/apache/echarts/blob/master/test/data/map/json/world.json) |
+| Six-digit adcode        | DataV China national/province/city map; some are outlines only                                                                         |
+| Country code, e.g. `US` | Natural Earth independent country/territory outline, not its subdivisions                                                              |
+| `<code>-provinces`      | Available Natural Earth non-China first-level subdivision boundaries                                                                   |
+| `china`                 | Alias of `CN-provinces`; registering under ECharts' `china` map name adds its built-in South China Sea inset                           |
+| `CN-provinces`          | ECharts 3.8.5 China province map, a special source for this suffix                                                                     |
 
 `100000` has 34 province features and a South China Sea inset. `CN-provinces` has 34 province features without that inset. Their sources differ. `CN` is an independent country outline, not a province overview. Outline-only maps appear in `coverage.chinaOutlineOnlyMaps`.
 
@@ -247,7 +307,7 @@ The top-level type is `FeatureCollection`; features have type `Feature`, the pro
 
 | Property             | Meaning                                                                                                                                                          |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`               | Current display label; raw JSON defaults to Chinese, loaders/localization follow `locale`                                                                        |
+| `name`               | Current display label; raw JSON defaults to Chinese, loaders/localization follow `getLocale()`                                                                   |
 | `names`              | Both languages, retained during localization                                                                                                                     |
 | `code`               | Stable feature code: adcode, alpha-2 or ISO 3166-2 where mapped; some features retain source identifiers rather than ISO codes                                   |
 | `adcode`             | Optional China administrative code; not necessarily in the Vant tree                                                                                             |
@@ -264,15 +324,15 @@ export const availableMaps: MapId[]
 export function hasGeoJSON(id: string): id is MapId
 export function hasGeoJSON(id: number): boolean
 
-export function loadGeoJSON(id: MapId, locale?: Locale): Promise<MapGeoJSON>
+export function loadGeoJSON(id: MapId): Promise<MapGeoJSON>
 
-export function localizeGeoJSON(map: MapGeoJSON, locale?: Locale): MapGeoJSON
+export function localizeGeoJSON(map: MapGeoJSON): MapGeoJSON
 ```
 
 - `availableMaps`: all registered IDs without loading all geometry. Treat the unfrozen array as read-only.
 - `hasGeoJSON(id)`: uses `String(id)` without changing case. The string overload narrows to `MapId`; the numeric overload returns only boolean.
-- `loadGeoJSON(id, locale = 'zh-CN')`: imports a registered map and returns a localized deep copy. Each result is independent; its declared input is a `MapId` string.
-- `localizeGeoJSON(map, locale = 'zh-CN')`: deep-copies a conforming input and sets each feature's `name = names[locale]`. Does not mutate input or validate/fill arbitrary third-party `names`.
+- `loadGeoJSON(id)`: imports a registered map and returns a localized deep copy. Each result is independent; its declared input is a `MapId` string.
+- `localizeGeoJSON(map)`: deep-copies a conforming input and sets each feature's `name = names[getLocale()]`. Does not mutate input or validate/fill arbitrary third-party `names`.
 
 Unknown IDs reject with `Error('Unknown map: <id>')`; import failures propagate. Registration does not guarantee that the runtime can load the file.
 
@@ -298,9 +358,22 @@ const series = {
 }
 ```
 
-## 8. Data manifest
+## Data metadata (Manifest)
 
-Default-import from `/manifest`; import types from the main entry or `/types`.
+Inspect the current data version, sources and coverage. `manifest` is a metadata object shipped with the package, containing the generation time, data fingerprint, source versions, coverage and gaps.
+
+Default-import from `@idux/geo-areas/manifest`:
+
+```ts
+import manifest from '@idux/geo-areas/manifest' with { type: 'json' }
+
+console.log(manifest.schemaVersion, manifest.updatedAt, manifest.fingerprint)
+console.log(manifest.coverage.maps)
+```
+
+### Type definitions
+
+The following TypeScript interfaces describe the object's structure. Import types from the main entry or `/types`.
 
 ```ts
 export interface DataSourceSnapshot {
@@ -405,4 +478,4 @@ All fields above are required. Empty gap arrays mean no corresponding gap was fo
 | `featureLevels`      | Distinct child administrative feature levels                                                                                    |
 | `childMapIds`        | Registered map IDs available for further drill-down                                                                             |
 
-The developer log `.cache/update-report.json` is not packaged and is not part of this public API. See the [package guide](README.md) and [third-party notices](THIRD_PARTY_NOTICES.md) for sources, updates and usage terms.
+The developer log `.cache/update-report.json` is not packaged and is not part of this public API. See the [data sources and licensing](README.md) for sources, updates and usage terms.

@@ -6,6 +6,7 @@
 [![CodeQL](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/IDuxFE/geo-areas/branch/main/graph/badge.svg)](https://codecov.io/gh/IDuxFE/geo-areas)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas?ref=badge_shield)
 
 面向 TypeScript 的地理数据：国家／地区、国际电话呼叫码、行政区划及可用于 ECharts 的 GeoJSON，提供自动数据更新和交互式地图 Playground。
 

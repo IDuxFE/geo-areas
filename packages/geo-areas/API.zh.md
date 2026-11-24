@@ -1,4 +1,4 @@
-<!-- Generated from packages/site/src/ by the package build. Edit the site source documents, not this file. -->
+<!-- Generated from packages/site/src/ by pnpm docs:sync. Edit the site source documents, not this file. -->
 
 # @idux/geo-areas API
 

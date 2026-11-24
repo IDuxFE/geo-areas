@@ -185,3 +185,5 @@ The world overview uses [`world.json` from the Apache ECharts repository](https:
 Fork this repository, create a branch and open a pull request against `IDuxFE/geo-areas:main`. Direct changes to `main` are blocked; changes require passing CI and resolved review discussions. Maintainers merge using rebase.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for checks and Changesets, and [SECURITY.md](SECURITY.md) for vulnerability reporting.
+
+Run `pnpm docs:sync` after editing site documentation, then commit the generated package references. Package builds do not modify documentation.

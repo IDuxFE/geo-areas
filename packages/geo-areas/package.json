@@ -11,7 +11,8 @@
     "prepack": "pnpm check",
     "update:data": "node scripts/update.mjs",
     "audit:data": "node scripts/audit.mjs",
-    "test:coverage": "node scripts/prepare-coverage.mjs && c8 --all --include=\"src/*.ts\" --include=\"dist/*.js\" --exclude=\"src/types.ts\" --exclude=\"**/*.d.ts\" --exclude=\"dist/types.js\" --exclude=\"scripts/prepare-coverage.mjs\" --exclude=\"scripts/build.mjs\" --exclude=\"scripts/pack-for-ci.mjs\" --include=\"scripts/*.mjs\" --reporter=text --reporter=lcov --reporter=json-summary node --test test/*.test.mjs"
+    "test:coverage": "node scripts/prepare-coverage.mjs && c8 --check-coverage --lines=95 --statements=95 --functions=90 --branches=85 --all --include=\"src/*.ts\" --include=\"dist/*.js\" --exclude=\"src/types.ts\" --exclude=\"**/*.d.ts\" --exclude=\"dist/types.js\" --exclude=\"scripts/prepare-coverage.mjs\" --exclude=\"scripts/build.mjs\" --exclude=\"scripts/pack-for-ci.mjs\" --exclude=\"scripts/sync-docs.mjs\" --include=\"scripts/*.mjs\" --reporter=text --reporter=lcov --reporter=json-summary node --test test/*.test.mjs",
+    "docs:sync": "node scripts/sync-docs.mjs"
   },
   "keywords": [
     "geojson",

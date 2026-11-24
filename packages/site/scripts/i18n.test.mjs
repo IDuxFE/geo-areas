@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
-import { readdir, readFile, access } from 'node:fs/promises'
+import { readdir, readFile, access, mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { localizeArchiveModule } from './localized-archive.mjs'
+import { localizeArchiveModule, serializeJavaScriptString } from './localized-archive.mjs'
 
 const root = new URL('../src/', import.meta.url)
 const messages = JSON.parse(await readFile(new URL('../shared/messages.json', import.meta.url)))
@@ -45,7 +47,7 @@ test('every site document has an English counterpart and every navigation/demo l
 
 test('the Archive adapter preserves static imports for both document languages', () => {
   const document = new URL('../src/0-guide/GettingStarted.page.md', import.meta.url).pathname
-  const source = `export default {pageData: {import: () => import(${JSON.stringify(`archive-page:${document}`)})}}`
+  const source = `export default {pageData: {import: () => import(${serializeJavaScriptString(`archive-page:${document}`)})}}`
   const result = localizeArchiveModule(source)
   assert.ok(result.includes(`import("archive-page:${document}")`))
   assert.ok(result.includes(`import("archive-page:${document.replace(/\.md$/, '.en.md')}")`))
@@ -58,4 +60,30 @@ test('the Archive adapter preserves static imports for both document languages',
     () => localizeArchiveModule('export default null'),
     /Unsupported Archive mount options/,
   )
+})
+
+test('generated string literals preserve content without raw HTML or JavaScript delimiters', () => {
+  const value =
+    '"quotes" \\ backticks ` ${value} </script><script>alert(1)</script> & \u2028 \u2029 \n'
+  const encoded = serializeJavaScriptString(value)
+  assert.equal(JSON.parse(encoded), value)
+  assert.doesNotMatch(encoded, /[<>&\u2028\u2029]/)
+})
+
+test('localized imports safely encode quotes, backslashes and HTML-like filenames', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'geo-areas-imports-'))
+  try {
+    const document = join(directory, 'quote"\\</script><script>\u2028\u2029.md')
+    const english = document.replace(/\.md$/, '.en.md')
+    await mkdir(dirname(english), { recursive: true })
+    await writeFile(english, '# English')
+    const source = `export default {pageData: {import: () => import(${serializeJavaScriptString(`archive-page:${document}`)})}}`
+    const result = localizeArchiveModule(source)
+    assert.ok(result.includes(`import(${serializeJavaScriptString(`archive-page:${document}`)})`))
+    assert.ok(result.includes(`import(${serializeJavaScriptString(`archive-page:${english}`)})`))
+    assert.ok(result.includes('get import()'))
+    assert.doesNotMatch(result, /[<\u2028\u2029]/)
+  } finally {
+    await rm(directory, { recursive: true, force: true })
+  }
 })

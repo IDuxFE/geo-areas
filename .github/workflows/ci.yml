@@ -35,7 +35,7 @@ jobs:
       - name: Require generated package documentation to be committed
         run: git diff --exit-code -- packages/geo-areas/README.md packages/geo-areas/README.zh.md packages/geo-areas/API.md packages/geo-areas/API.zh.md
       - name: Validate Changesets and package graph
-        run: pnpm exec changeset status
+        run: node .github/scripts/validate-changesets.mjs
       - run: pnpm site:build
       - name: Pack the release artifact (no publish)
         run: node packages/geo-areas/scripts/pack-for-ci.mjs

@@ -1,0 +1,74 @@
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -1,4 +1,4 @@
+-import { getHighlighter as getHighlighter$1 } from 'shiki';
++import { createHighlighter as getHighlighter$1, bundledLanguages } from 'shiki';
+ 
+ function createRangeProcessor(dictionary, options = {}) {
+   return ({ code }) => {
+@@ -121,8 +121,10 @@
+   }) ?? code2, code);
+ }
+ 
++const compatibleTheme = theme => theme === 'material-palenight' ? 'material-theme-palenight' : theme;
++
+ async function getHighlighter(options = {}) {
+-  const highlighter = await getHighlighter$1(options);
++  const highlighter = await getHighlighter$1({ ...options, themes: options.themes?.map(compatibleTheme), langs: options.langs ?? Object.keys(bundledLanguages) });
+   const processors = options.processors ?? [];
+   return {
+     ...highlighter,
+@@ -133,11 +135,14 @@
+       const { code, lineOptions } = process(processors, str, lang);
+       const highlighted = highlighter.codeToHtml(code, {
+         lang,
+-        theme,
+-        lineOptions: [
+-          ...lineOptions,
+-          ...baseLineOptions
+-        ]
++        theme: compatibleTheme(theme),
++        transformers: [{
++          line(node, line) {
++            for (const option of [...lineOptions, ...baseLineOptions]) {
++              if (option.line === line && option.classes) this.addClassToHast(node, option.classes);
++            }
++          }
++        }]
+       });
+       return postProcess(processors, highlighted, lang);
+     }
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -123,8 +123,10 @@
+   }) ?? code2, code);
+ }
+ 
++const compatibleTheme = theme => theme === 'material-palenight' ? 'material-theme-palenight' : theme;
++
+ async function getHighlighter(options = {}) {
+-  const highlighter = await shiki.getHighlighter(options);
++  const highlighter = await shiki.createHighlighter({ ...options, themes: options.themes?.map(compatibleTheme), langs: options.langs ?? Object.keys(shiki.bundledLanguages) });
+   const processors = options.processors ?? [];
+   return {
+     ...highlighter,
+@@ -135,11 +137,14 @@
+       const { code, lineOptions } = process(processors, str, lang);
+       const highlighted = highlighter.codeToHtml(code, {
+         lang,
+-        theme,
+-        lineOptions: [
+-          ...lineOptions,
+-          ...baseLineOptions
+-        ]
++        theme: compatibleTheme(theme),
++        transformers: [{
++          line(node, line) {
++            for (const option of [...lineOptions, ...baseLineOptions]) {
++              if (option.line === line && option.classes) this.addClassToHast(node, option.classes);
++            }
++          }
++        }]
+       });
+       return postProcess(processors, highlighted, lang);
+     }

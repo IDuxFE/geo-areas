@@ -1,0 +1,28 @@
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -2,7 +2,7 @@
+ import R from "path";
+ import { slugify as _, resolveTitleFromToken as B } from "@mdit-vue/shared";
+ import J from "debug";
+-import z from "lru-cache";
++import { LRUCache as z } from "lru-cache";
+ import { componentPlugin as G } from "@mdit-vue/plugin-component";
+ import { frontmatterPlugin as K } from "@mdit-vue/plugin-frontmatter";
+ import { headersPlugin as X } from "@mdit-vue/plugin-headers";
+@@ -12,7 +12,7 @@
+ import Y from "markdown-it";
+ import W from "markdown-it-anchor";
+ import Z from "markdown-it-attrs";
+-import ee from "markdown-it-emoji";
++import { full as ee } from "markdown-it-emoji";
+ import T from "markdown-it-container";
+ import { defineProcessor as ne, createRangeProcessor as te, createFocusProcessor as re, createHighlightProcessor as se, createDiffProcessor as ie, getHighlighter as oe, addClass as H } from "shiki-processor";
+ import { URL as ce } from "url";
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -1,4 +1,4 @@
+-"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const P=require("fs"),y=require("path"),U=require("@mdit-vue/shared"),B=require("debug"),J=require("lru-cache"),z=require("@mdit-vue/plugin-component"),G=require("@mdit-vue/plugin-frontmatter"),K=require("@mdit-vue/plugin-headers"),X=require("@mdit-vue/plugin-sfc"),Q=require("@mdit-vue/plugin-title"),V=require("@mdit-vue/plugin-toc"),Y=require("markdown-it"),W=require("markdown-it-anchor"),Z=require("markdown-it-attrs"),ee=require("markdown-it-emoji"),q=require("markdown-it-container"),k=require("shiki-processor"),ne=require("url"),te=require("path/posix");/**
++"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const P=require("fs"),y=require("path"),U=require("@mdit-vue/shared"),B=require("debug"),J=require("lru-cache").LRUCache,z=require("@mdit-vue/plugin-component"),G=require("@mdit-vue/plugin-frontmatter"),K=require("@mdit-vue/plugin-headers"),X=require("@mdit-vue/plugin-sfc"),Q=require("@mdit-vue/plugin-title"),V=require("@mdit-vue/plugin-toc"),Y=require("markdown-it"),W=require("markdown-it-anchor"),Z=require("markdown-it-attrs"),ee=require("markdown-it-emoji").full,q=require("markdown-it-container"),k=require("shiki-processor"),ne=require("url"),te=require("path/posix");/**
+  * @license
+  *
+  * Use of this source code is governed by an MIT-style license that can be

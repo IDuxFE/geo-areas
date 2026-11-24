@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { basename, dirname, resolve } from 'path'
 
-import yaml from 'yaml-front-matter'
+import { parse as parseYaml } from 'yaml'
 
 import { defineConfig } from '@idux/archive'
 import { createArchiveVuePageLoader, createArchiveVueDemoLoader } from '@idux/archive-loader-vue'
@@ -55,7 +55,8 @@ export default defineConfig({
         type = 'tab',
         title,
         description = '',
-      } = yaml.loadFront(readFileSync(file, 'utf-8'))
+      } = parseYaml(readFileSync(file, 'utf-8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '') ??
+      {}
 
       return {
         index,

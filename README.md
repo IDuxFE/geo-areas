@@ -6,6 +6,7 @@
 [![CodeQL](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml/badge.svg)](https://github.com/IDuxFE/geo-areas/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/IDuxFE/geo-areas/branch/main/graph/badge.svg)](https://codecov.io/gh/IDuxFE/geo-areas)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas?ref=badge_shield)
 
 Geographic data for TypeScript: countries and regions, calling codes, administrative divisions, and ECharts-ready GeoJSON, with automated data updates and an interactive map playground.
 
@@ -48,6 +49,9 @@ Changesets accumulate until a maintainer runs `pnpm version:packages` on a relea
 Project code is MIT licensed. Third-party data has separate terms; see [source notices](packages/geo-areas/THIRD_PARTY_NOTICES.md), including the outstanding redistribution checks. Automated dependency scans do not establish permission to redistribute map datasets.
 
 The world overview uses Apache ECharts example data. China province maps can use DataV `100000` or ECharts 3.8.5 `china` (alias `CN-provinces`). Coverage and drill-down codes are documented in the [package README](packages/geo-areas/README.md).
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas?ref=badge_large)
 
 ## Contributing
 

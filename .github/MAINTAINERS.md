@@ -39,4 +39,18 @@ Only when publication is explicitly approved:
 5. Enable the Publish workflow and set repository variable `NPM_PUBLISH_ENABLED=true`.
 6. For subsequent releases, push the matching `v<version>` tag only after release approval. Publishing verifies the tag/version match, requires the commit to be an ancestor of upstream main with successful push CI and CodeQL runs at that exact commit, checks the package and uses OIDC provenance. Do not trigger automated publishing for the version already published manually.
 
-The data-update workflow runs upstream only and opens a PR with changed data and audit reports. It does not generate Changesets or change package versions. GitHub does not recursively run ordinary PR workflows for PRs created using `GITHUB_TOKEN`; a maintainer can close/reopen the PR to start checks, or later configure a dedicated GitHub App credential. Never bypass CI to merge an update PR.
+## Automated data-update PRs
+
+The data-update workflow runs upstream only and opens a PR with changed data and audit reports. It does not generate Changesets or change package versions. It uses a dedicated GitHub App installation token to push the update branch and create/update the PR, allowing ordinary PR CI and CodeQL workflows to run automatically. Maintainers still review and rebase merge manually; never bypass required checks or add the App to ruleset bypass actors.
+
+### One-time GitHub App setup
+
+1. Check organization Settings → GitHub Apps for Apps you manage, and Settings → Installed GitHub Apps for installations. Third-party Apps such as Codecov and FOSSA are not credentials for this workflow. Reuse an App only if you can manage its private keys and its permissions fit this task.
+2. If needed, register an organization-owned App at <https://github.com/organizations/IDuxFE/settings/apps/new>. Choose a unique name (for example, `iduxfe-geo-areas-data-updater`) and use the repository URL as its homepage. Disable the webhook (no webhook endpoint is needed). Allow installation only on this account.
+3. Grant repository permissions **Contents: Read and write** and **Pull requests: Read and write**. Metadata read access is automatic. No organization permissions, events or Actions write permission are needed.
+4. Install the App on `IDuxFE`, choosing **Only select repositories → geo-areas**. If reusing an App after permission changes, approve the updated installation permissions.
+5. Copy the App's **Client ID** from its settings. In repository Settings → Secrets and variables → Actions → Variables, create `DATA_UPDATE_APP_CLIENT_ID` with that value.
+6. In the App settings, select **Generate a private key**. Store the entire downloaded PEM file, including its BEGIN/END lines, as repository Actions secret `DATA_UPDATE_APP_PRIVATE_KEY`. Do not commit the PEM or paste it into PRs or chat. No client secret is required.
+7. After merging the workflow change, manually run **Update public-source datasets** on `main`. If it creates or updates a PR, verify that CI and CodeQL start without clicking **Approve workflows to run**, then review and rebase merge yourself. An unchanged snapshot may produce no PR update and therefore no new checks.
+
+The workflow fails early with configuration guidance if either credential is missing. The default `GITHUB_TOKEN` has read-only contents permission and checkout does not persist credentials. The App token is created only after validation, scoped to this repository with contents/PR write permissions, and revoked by the token action during job cleanup. There is no fallback to `GITHUB_TOKEN`, which would restore the manual workflow-approval requirement.

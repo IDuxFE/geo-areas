@@ -31,6 +31,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: node --test .github/scripts/*.test.mjs
+      - run: pnpm docs:sync
       - run: pnpm check
       - name: Require generated package documentation to be committed
         run: git diff --exit-code -- packages/geo-areas/README.md packages/geo-areas/README.zh.md packages/geo-areas/API.md packages/geo-areas/API.zh.md

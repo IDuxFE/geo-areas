@@ -20,7 +20,9 @@
     "audit:data": "pnpm build && pnpm --filter @idux/geo-areas run audit:data",
     "changeset": "changeset",
     "version:packages": "changeset version",
-    "test:coverage": "pnpm --filter @idux/geo-areas run test:coverage"
+    "test:coverage": "pnpm --filter @idux/geo-areas run test:coverage",
+    "docs:sync": "pnpm --filter @idux/geo-areas run docs:sync",
+    "check:repository": "node .github/scripts/check-repository.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.1",

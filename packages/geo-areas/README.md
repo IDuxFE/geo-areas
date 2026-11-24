@@ -1,4 +1,4 @@
-<!-- Generated from packages/site/src/0-guide/GettingStarted*.md and DataSources*.md by the package build. Edit the site source documents, not this file. -->
+<!-- Generated from packages/site/src/0-guide/GettingStarted*.md and DataSources*.md by pnpm docs:sync. Edit the site source documents, not this file. -->
 
 # @idux/geo-areas
 

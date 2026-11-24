@@ -34,7 +34,7 @@ export async function generateReadmeDocs(outputRoot = packageRoot) {
       })
     await writeFile(
       new URL(outputName, outputRoot),
-      '<!-- Generated from packages/site/src/0-guide/GettingStarted*.md and DataSources*.md by the package build. Edit the site source documents, not this file. -->\n\n' +
+      '<!-- Generated from packages/site/src/0-guide/GettingStarted*.md and DataSources*.md by pnpm docs:sync. Edit the site source documents, not this file. -->\n\n' +
         packaged +
         '\n',
     )

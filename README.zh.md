@@ -185,3 +185,5 @@ pnpm --dir packages/geo-areas pack
 Fork 仓库后创建分支，向 `IDuxFE/geo-areas:main` 提交 PR。`main` 禁止直接修改，合并前须通过 CI 并解决评审讨论；维护者使用 rebase 合并。
 
 检查命令和 Changesets 用法见 [CONTRIBUTING.md](CONTRIBUTING.md)，漏洞报告方式见 [SECURITY.md](SECURITY.md)。
+
+修改站点文档后运行 `pnpm docs:sync`，并提交生成的包内参考文档。包构建本身不修改文档。

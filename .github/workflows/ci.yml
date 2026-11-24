@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [22, 24]
+        node: ['20.19.0', 22, 24]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -30,11 +30,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm format:check
+      - run: node --test .github/scripts/*.test.mjs
       - run: pnpm check
+      - name: Require generated package documentation to be committed
+        run: git diff --exit-code -- packages/geo-areas/README.md packages/geo-areas/README.zh.md packages/geo-areas/API.md packages/geo-areas/API.zh.md
       - name: Validate Changesets and package graph
-        if: github.event_name == 'pull_request'
-        run: pnpm exec changeset status --since=origin/${{ github.base_ref }}
-      - run: pnpm playground:build
+        run: pnpm exec changeset status
+      - run: pnpm site:build
       - name: Pack the release artifact (no publish)
         run: node packages/geo-areas/scripts/pack-for-ci.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -47,7 +49,7 @@ jobs:
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         if: matrix.node == 22
         with:
-          path: packages/playground/dist
+          path: packages/site/dist
   coverage:
     permissions:
       contents: read

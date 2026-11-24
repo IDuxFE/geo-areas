@@ -8,6 +8,7 @@ title: API (English)
 Import from `/countries` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface Country {
   level: 'country'
   code: string
@@ -20,7 +21,7 @@ export interface Country {
 `level` is always `country`. `code` is the unique uppercase ISO 3166-1 alpha-2 code, `alpha3` its uppercase three-letter code and `numeric` the three-digit ISO numeric string, including leading zeros. `name` contains display names. Entries include territories; the count is not a count of sovereign states.
 
 ```ts
-export const countries: readonly Country[]
+export const countries: DeepReadonly<Country[]>
 
 export function getCountry(code: string): Country | undefined
 
@@ -65,7 +66,7 @@ export interface Subdivision {
   center: Coordinate | null
 }
 
-export const subdivisions: readonly Subdivision[]
+export const subdivisions: DeepReadonly<Subdivision[]>
 
 export function getSubdivisions(countryCode: string): Subdivision[]
 ```
@@ -80,4 +81,4 @@ export function getSubdivisions(countryCode: string): Subdivision[]
 | `chineseName`        | Original Chinese translation or `null`, indicating display fallback                                   |
 | `center`             | Natural Earth representative label point or `null`; neither a capital location nor geometric centroid |
 
-`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns a new array of shared records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.
+`subdivisions` exposes all text records. `getSubdivisions(countryCode)` filters case-insensitively, returns independent editable copies of matching records or `[]`, and does not accept alpha-3/numeric aliases. It provides neither global second-level divisions nor boundary geometry. Text coverage exceeds boundary coverage; it does not guarantee a `<countryCode>-provinces` map.

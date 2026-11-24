@@ -10,6 +10,7 @@ title: API
 ### Country
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface Country {
   level: 'country'
   code: string
@@ -32,7 +33,7 @@ export interface Country {
 ### 导出与签名
 
 ```ts
-export const countries: readonly Country[]
+export const countries: DeepReadonly<Country[]>
 
 export function getCountry(code: string): Country | undefined
 
@@ -88,7 +89,7 @@ export interface Subdivision {
   center: Coordinate | null
 }
 
-export const subdivisions: readonly Subdivision[]
+export const subdivisions: DeepReadonly<Subdivision[]>
 
 export function getSubdivisions(countryCode: string): Subdivision[]
 ```
@@ -103,7 +104,7 @@ export function getSubdivisions(countryCode: string): Subdivision[]
 | `chineseName`        | 上游提供的中文名，无翻译时为 `null`，可用于区分中文展示值是否发生回退         |
 | `center`             | Natural Earth 代表性标注点，缺失为 `null`；不是首府／省会坐标，也不是几何中心 |
 
-`subdivisions` 提供全部文字资料，`getSubdivisions(countryCode)` 按国家／地区筛选，不区分大小写，返回新数组及共享条目引用；未找到返回 `[]`。参数不接受 alpha-3／数字代码别名。此 API 不返回全球二级市县，也不返回边界几何。
+`subdivisions` 提供全部文字资料，`getSubdivisions(countryCode)` 按国家／地区筛选，不区分大小写，返回匹配条目的独立可编辑副本；未找到返回 `[]`。参数不接受 alpha-3／数字代码别名。此 API 不返回全球二级市县，也不返回边界几何。
 
 ```ts
 const california = getSubdivisions('us').find((item) => item.code === 'US-CA')

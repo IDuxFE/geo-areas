@@ -68,3 +68,18 @@ const groupedCountries: OptionGroup<{ value: string; label: string; level: 'coun
 const groupedPhones: OptionGroup<{ value: string; label: string; callingCode: string }>[] =
   getGroupedPhoneOptions()
 void [groupedCountries, groupedPhones]
+
+import { countries, chinaAreas, chinaAreaTree, phoneRegions, subdivisions } from '@idux/geo-areas'
+// @ts-expect-error Snapshot entries are deeply readonly.
+countries[0].name.en = 'Changed'
+// @ts-expect-error Nested arrays are readonly too.
+chinaAreas[0].children?.pop()
+// @ts-expect-error The country root is deeply readonly.
+chinaAreaTree.adcode = '999999'
+// @ts-expect-error Phone snapshots are readonly.
+phoneRegions[0].callingCode = '+0'
+// @ts-expect-error Subdivision coordinates are readonly.
+subdivisions[0].center?.push(0)
+// Query copies remain editable.
+getCountry('CN')!.name.en = 'Local label'
+getChinaArea('110000')!.children?.pop()

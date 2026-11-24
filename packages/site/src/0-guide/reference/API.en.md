@@ -58,7 +58,7 @@ export interface OptionGroup<T> {
 - Required `null` fields indicate unavailable upstream data, not zero coordinates, empty text or a replacement field. Optional fields may be absent; absent children do not establish that administrative children do not exist.
 - Missing single-item queries return `undefined`; collection queries return `[]`; unknown map loads reject.
 - Only explicitly described normalization occurs. Queries do not trim whitespace; China codes and map IDs are not zero-padded.
-- `readonly` arrays are a TypeScript constraint, not a runtime freeze. Queries share entry references; copy before editing.
+- Exported reference snapshots are deeply readonly and frozen at runtime. Query functions return independent editable copies, including nested names, coordinates and children.
 
 ### Shared locale configuration
 

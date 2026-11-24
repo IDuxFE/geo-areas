@@ -62,7 +62,7 @@ export interface OptionGroup<T> {
 | `?`      | TypeScript 可选字段可能不存在。缺少 `children` 不应解释为现实中绝对没有下级行政区                                                                                      |
 | 查询结果 | 单项未命中返回 `undefined`，集合查询未命中返回 `[]`；地图加载未命中返回 rejected Promise                                                                               |
 | 输入处理 | 国家相关查询仅执行各函数说明的大小写／前缀处理，不会自动去除空格；中国代码和地图 ID 不做补零                                                                           |
-| 数据引用 | 原始数据数组的 `readonly` 仅为 TypeScript 约束，不是运行时冻结。查询返回共享条目引用；需要编辑时应先复制                                                               |
+| 数据引用 | 导出的原始快照在类型上深只读，并在运行时递归冻结。查询函数返回可独立编辑的副本，包括嵌套名称、坐标和子节点                                                             |
 
 ### 统一语言配置
 
@@ -92,6 +92,7 @@ await loadGeoJSON('world') // 英文地图名称。
 ### Country
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface Country {
   level: 'country'
   code: string
@@ -114,7 +115,7 @@ export interface Country {
 ### 导出与签名
 
 ```ts
-export const countries: readonly Country[]
+export const countries: DeepReadonly<Country[]>
 
 export function getCountry(code: string): Country | undefined
 
@@ -170,7 +171,7 @@ export interface Subdivision {
   center: Coordinate | null
 }
 
-export const subdivisions: readonly Subdivision[]
+export const subdivisions: DeepReadonly<Subdivision[]>
 
 export function getSubdivisions(countryCode: string): Subdivision[]
 ```
@@ -185,7 +186,7 @@ export function getSubdivisions(countryCode: string): Subdivision[]
 | `chineseName`        | 上游提供的中文名，无翻译时为 `null`，可用于区分中文展示值是否发生回退         |
 | `center`             | Natural Earth 代表性标注点，缺失为 `null`；不是首府／省会坐标，也不是几何中心 |
 
-`subdivisions` 提供全部文字资料，`getSubdivisions(countryCode)` 按国家／地区筛选，不区分大小写，返回新数组及共享条目引用；未找到返回 `[]`。参数不接受 alpha-3／数字代码别名。此 API 不返回全球二级市县，也不返回边界几何。
+`subdivisions` 提供全部文字资料，`getSubdivisions(countryCode)` 按国家／地区筛选，不区分大小写，返回匹配条目的独立可编辑副本；未找到返回 `[]`。参数不接受 alpha-3／数字代码别名。此 API 不返回全球二级市县，也不返回边界几何。
 
 ```ts
 const california = getSubdivisions('us').find((item) => item.code === 'US-CA')
@@ -202,6 +203,7 @@ getSubdivisions('ZZ') // []
 ### PhoneRegion
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface PhoneRegion {
   countryCode: string
   name: LocalizedName
@@ -220,7 +222,7 @@ export interface PhoneRegion {
 ### 导出与签名
 
 ```ts
-export const phoneRegions: readonly PhoneRegion[]
+export const phoneRegions: DeepReadonly<PhoneRegion[]>
 
 export function getPhoneRegion(countryCode: string): PhoneRegion | undefined
 
@@ -269,6 +271,7 @@ const groups = getGroupedPhoneOptions()
 ### ChinaArea
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface ChinaArea {
   adcode: string
   parentCode: string | null
@@ -308,8 +311,8 @@ export interface AreaOption {
 ### 导出与签名
 
 ```ts
-export const chinaAreas: readonly ChinaArea[]
-export const chinaAreaTree: ChinaArea
+export const chinaAreas: DeepReadonly<ChinaArea[]>
+export const chinaAreaTree: DeepReadonly<ChinaArea>
 
 export function getChinaArea(adcode: string | number): ChinaArea | undefined
 

@@ -8,6 +8,7 @@ title: API (English)
 Import from `/china` or the main entry.
 
 ```ts
+import type { DeepReadonly } from '@idux/geo-areas/types'
 export interface ChinaArea {
   adcode: string
   parentCode: string | null
@@ -43,8 +44,8 @@ export interface AreaOption {
 `AreaOption.value` is `adcode`, `label` is the selected name, and `level` matches the node. Recursive options omit coordinates, parent codes and English-name provenance.
 
 ```ts
-export const chinaAreas: readonly ChinaArea[]
-export const chinaAreaTree: ChinaArea
+export const chinaAreas: DeepReadonly<ChinaArea[]>
+export const chinaAreaTree: DeepReadonly<ChinaArea>
 
 export function getChinaArea(adcode: string | number): ChinaArea | undefined
 

@@ -3,3 +3,21 @@ packages:
 allowBuilds:
   esbuild: true
   vue-demi: true
+
+overrides:
+  test-exclude>glob: ^14.0.2
+  test-exclude>minimatch: ^11.0.1
+  glob@>=14.0.2>minimatch: ^11.0.1
+  # c8/test-exclude have not adopted the fixed glob/minimatch or current find-up APIs.
+  c8>find-up: ^8.0.0
+  p-locate>p-limit: ^7.3.3
+  postcss>nanoid: ^6.0.2
+  istanbul-lib-report>supports-color: ^11.0.0
+  cross-spawn>which: ^6.0.1
+  '@atlaskit/pragmatic-drag-and-drop': ^2.0.2
+  '@atlaskit/pragmatic-drag-and-drop-auto-scroll': ^2.1.5
+  '@atlaskit/pragmatic-drag-and-drop-hitbox': ^2.0.0
+
+patchedDependencies:
+  c8@12.0.0: patches/c8@12.0.0.patch
+  istanbul-lib-report@3.0.1: patches/istanbul-lib-report@3.0.1.patch

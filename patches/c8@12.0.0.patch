@@ -1,0 +1,13 @@
+diff --git a/lib/parse-args.js b/lib/parse-args.js
+index 84ff8e3ed9300f9fce79fbba041e10cfb3171cb5..64b26ce975ff3181fa325ad07a82f0cf0f630138 100644
+--- a/lib/parse-args.js
++++ b/lib/parse-args.js
+@@ -18,7 +18,7 @@ function buildYargs (withCommands = false) {
+         const config = JSON.parse(readFileSync(path))
+         return applyExtends(config, process.cwd(), true)
+       },
+-      default: () => findUp.sync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
++      default: () => findUp.findUpSync(['.c8rc', '.c8rc.json', '.nycrc', '.nycrc.json'])
+     })
+     .option('reporter', {
+       alias: 'r',

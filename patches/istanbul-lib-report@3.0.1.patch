@@ -1,0 +1,13 @@
+diff --git a/lib/file-writer.js b/lib/file-writer.js
+index de1154b1af1e4404e9d1ba174a8b9a475d1c2360..56abfcc9a1a04dc280cc1fd09d96e885cac18f5c 100644
+--- a/lib/file-writer.js
++++ b/lib/file-writer.js
+@@ -6,7 +6,7 @@
+ const path = require('path');
+ const fs = require('fs');
+ const mkdirp = require('make-dir');
+-const supportsColor = require('supports-color');
++const supportsColor = require('supports-color').default;
+ 
+ /**
+  * Base class for writing content

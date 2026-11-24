@@ -11,7 +11,7 @@ await build({
   outdir: 'dist',
   format: 'esm',
   platform: 'node',
-  target: 'node22',
+  target: 'node20.19',
   sourcemap: 'linked',
   sourcesContent: true,
 })

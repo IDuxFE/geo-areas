@@ -1,4 +1,5 @@
 export * from './types.js'
+export * from './locale.js'
 export * from './countries.js'
 export * from './phone.js'
 export * from './china.js'

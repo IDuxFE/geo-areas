@@ -12,9 +12,9 @@
   "cldr": "46.0",
   "sources": [
     {
-      "url": "https://echarts.apache.org/examples/data/asset/geo/world.json",
+      "url": "https://raw.githubusercontent.com/apache/echarts/master/test/data/map/json/world.json",
       "sha256": "049b334579e5a42d5d16c72d014d380e048e39fc1504049f212acb589484d2fa",
-      "firstRetrievedAt": "2026-11-23T13:12:33.421Z"
+      "firstRetrievedAt": "2026-11-24T01:32:22.295Z"
     },
     {
       "url": "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
@@ -12574,6 +12574,6 @@
     ],
     "chinaMapsWithFullErrors": []
   },
-  "fingerprint": "e4edb43644df3fe0e4e0304c759e668b8b55596f460cbff164bd91f2e5c7d35e",
-  "updatedAt": "2026-11-23T15:09:48.993Z"
+  "fingerprint": "098805660104ac18e0545ccc4aa5271972d1c8ebd590ce1c65267daefbb6d992",
+  "updatedAt": "2026-11-24T02:05:25.346Z"
 }

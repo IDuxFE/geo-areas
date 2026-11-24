@@ -13,8 +13,14 @@ import { phoneRegions } from '../dist/phone.js'
 import { availableMaps, loadGeoJSON } from '../dist/geojson.js'
 import { validateChinaMapCoverage } from './validate-coverage.mjs'
 import { format } from 'oxfmt'
+import { generateContinents } from './continents.mjs'
 
 process.chdir(fileURLToPath(new URL('..', import.meta.url)))
+assert.equal(
+  await readFile('src/generated/continents.ts', 'utf8'),
+  generateContinents(),
+  'Continent snapshot must match CLDR',
+)
 const require = createRequire(import.meta.url)
 const codeMappings = require('cldr-core/supplemental/codeMappings.json').supplemental.codeMappings
 const manifest = JSON.parse(await readFile('data-manifest.json', 'utf8'))

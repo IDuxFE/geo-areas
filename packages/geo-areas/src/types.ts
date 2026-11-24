@@ -115,3 +115,10 @@ export interface DataManifest {
     chinaMapsWithFullErrors: string[]
   }
 }
+
+/** A localized option group; empty groups are omitted by grouped option APIs. */
+export interface OptionGroup<T> {
+  value: string
+  label: string
+  children: T[]
+}

@@ -50,9 +50,6 @@ Project code is MIT licensed. Third-party data has separate terms; see [source n
 
 The world overview uses Apache ECharts example data. China province maps can use DataV `100000` or ECharts 3.8.5 `china` (alias `CN-provinces`). Coverage and drill-down codes are documented in the [package README](packages/geo-areas/README.md).
 
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FIDuxFE%2Fgeo-areas?ref=badge_large)
-
 ## Contributing
 
 Fork this repository, create a branch and open a pull request against `IDuxFE/geo-areas:main`. Direct changes to `main` are blocked; changes require passing CI and resolved review discussions. Maintainers merge using rebase.

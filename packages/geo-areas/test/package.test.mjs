@@ -9,14 +9,17 @@ import { generateApiDocs } from '../scripts/generate-api-docs.mjs'
 import { generateReadmeDocs } from '../scripts/generate-readme-docs.mjs'
 
 test('the packed package has usable documentation and loads maps outside the workspace', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'geo-areas-package-'))
+  // Keep a space in the path to catch shell argument splitting on Windows.
+  const directory = await mkdtemp(join(tmpdir(), 'geo areas-package-'))
   try {
     const archive = join(directory, 'package.tgz')
-    // pnpm is a .cmd shim on Windows, which execFile cannot launch without a shell.
-    execFileSync('pnpm', ['--config.ignore-scripts=true', 'pack', '--out', archive], {
-      stdio: 'pipe',
-      shell: process.platform === 'win32',
-    })
+    // Run the lifecycle's CLI through Node so Windows shims and spaces need no shell.
+    const pnpm = process.env.npm_execpath
+    execFileSync(
+      pnpm ? process.execPath : 'pnpm',
+      [...(pnpm ? [pnpm] : []), '--config.ignore-scripts=true', 'pack', '--out', archive],
+      { stdio: 'pipe' },
+    )
     // Extract from inside the temp dir with a relative name: GNU tar reads a
     // drive-letter colon in the -f argument as a remote host spec ("C:").
     execFileSync('tar', ['-xzf', basename(archive), '-C', directory], { cwd: directory })

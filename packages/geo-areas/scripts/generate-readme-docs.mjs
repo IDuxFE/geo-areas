@@ -40,17 +40,11 @@ export async function generateReadmeDocs(outputRoot = packageRoot) {
     )
   }
   // Rebasing license links changes table widths; format the packaged copies too.
-  execFileSync(
-    'pnpm',
-    [
-      'exec',
-      'oxfmt',
-      '--config',
-      fileURLToPath(new URL('../../../.oxfmtrc.json', import.meta.url)),
-      '--write',
-      ...[...languageTargets.values()].map((name) => fileURLToPath(new URL(name, outputRoot))),
-    ],
-    // pnpm is a .cmd shim on Windows, which execFile cannot launch without a shell.
-    { shell: process.platform === 'win32' },
-  )
+  execFileSync(process.execPath, [
+    fileURLToPath(new URL('./bin/oxfmt', import.meta.resolve('oxfmt/package.json'))),
+    '--config',
+    fileURLToPath(new URL('../../../.oxfmtrc.json', import.meta.url)),
+    '--write',
+    ...[...languageTargets.values()].map((name) => fileURLToPath(new URL(name, outputRoot))),
+  ])
 }

@@ -19,6 +19,8 @@ try {
   execFileSync('pnpm', ['--config.ignore-scripts=true', 'pack', '--out', 'release.tgz'], {
     cwd: packageDirectory,
     stdio: 'inherit',
+    // pnpm is a .cmd shim on Windows, which execFile cannot launch without a shell.
+    shell: process.platform === 'win32',
   })
 } finally {
   await writeFile(manifestPath, original)

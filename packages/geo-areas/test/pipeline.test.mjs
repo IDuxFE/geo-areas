@@ -38,7 +38,12 @@ async function fixture() {
   try {
     for (const folder of ['responses', 'src', 'scripts', '.cache'])
       await mkdir(join(directory, folder), { recursive: true })
-    await symlink(resolve('node_modules'), join(directory, 'node_modules'), 'dir')
+    // Directory symlinks need elevated rights on Windows; junctions do not.
+    await symlink(
+      resolve('node_modules'),
+      join(directory, 'node_modules'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    )
     await cp('scripts/notices', join(directory, 'scripts/notices'), { recursive: true })
     const sources = new Map()
     const provinces = useCascaderAreaData()

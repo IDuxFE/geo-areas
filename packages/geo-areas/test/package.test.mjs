@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { mkdtemp, readFile, access, rm, cp, mkdir, symlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { generateApiDocs } from '../scripts/generate-api-docs.mjs'
 import { generateReadmeDocs } from '../scripts/generate-readme-docs.mjs'
@@ -12,10 +12,14 @@ test('the packed package has usable documentation and loads maps outside the wor
   const directory = await mkdtemp(join(tmpdir(), 'geo-areas-package-'))
   try {
     const archive = join(directory, 'package.tgz')
+    // pnpm is a .cmd shim on Windows, which execFile cannot launch without a shell.
     execFileSync('pnpm', ['--config.ignore-scripts=true', 'pack', '--out', archive], {
       stdio: 'pipe',
+      shell: process.platform === 'win32',
     })
-    execFileSync('tar', ['-xzf', archive, '-C', directory])
+    // Extract from inside the temp dir with a relative name: GNU tar reads a
+    // drive-letter colon in the -f argument as a remote host spec ("C:").
+    execFileSync('tar', ['-xzf', basename(archive), '-C', directory], { cwd: directory })
     const root = join(directory, 'package')
     await generateApiDocs(pathToFileURL(directory + '/'))
     await generateReadmeDocs(pathToFileURL(directory + '/'))
@@ -38,7 +42,7 @@ test('the packed package has usable documentation and loads maps outside the wor
       for (const [, target] of markdown.matchAll(/\]\(([^)]+)\)/g)) {
         if (/^(?:[a-z]+:|#)/i.test(target)) continue
         const path = resolve(root, dirname(file), target.split('#')[0])
-        assert.ok(path.startsWith(root + '/'), `${file}: link escapes package: ${target}`)
+        assert.ok(path.startsWith(root + sep), `${file}: link escapes package: ${target}`)
         await access(path)
       }
     }
@@ -73,7 +77,12 @@ test('the data package builds without site sources or workspace formatting tools
       'scripts/build.mjs',
     ])
       await cp(path, join(directory, path), { recursive: true })
-    await symlink(resolve('node_modules'), join(directory, 'node_modules'), 'dir')
+    // Directory symlinks need elevated rights on Windows; junctions do not.
+    await symlink(
+      resolve('node_modules'),
+      join(directory, 'node_modules'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    )
     execFileSync(process.execPath, ['scripts/build.mjs'], { cwd: directory, stdio: 'pipe' })
     await access(join(directory, 'dist/index.js'))
     await access(join(directory, 'dist/data/maps/world.json'))
